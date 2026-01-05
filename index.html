@@ -1,0 +1,1821 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vertriebspartner</title>
+  <style>
+    :root{
+      --bg:#f4f8ff;
+      --panel:#ffffff;
+      --text:#0b1b33;
+      --muted:#51627a;
+      --line:rgba(11,27,51,.14);
+      --shadow: 0 10px 28px rgba(11,27,51,.10);
+      --radius:18px;
+      --pad2:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+
+      /* default partner theme */
+      --pf-main:#1d4ed8;
+      --pf-soft:rgba(29,78,216,.10);
+      --pf-soft2:rgba(29,78,216,.06);
+
+      --green:rgba(16,185,129,.18);
+      --amber:rgba(245,158,11,.18);
+      --red:rgba(244,63,94,.18);
+    }
+
+    /* Partner-Farben */
+    body[data-partner="fonds_finanz"]{ --pf-main:#2563eb; --pf-soft:rgba(37,99,235,.14); --pf-soft2:rgba(37,99,235,.08); }
+    body[data-partner="demv"]       { --pf-main:#059669; --pf-soft:rgba(5,150,105,.14);  --pf-soft2:rgba(5,150,105,.08); }
+    body[data-partner="taures"]     { --pf-main:#7c3aed; --pf-soft:rgba(124,58,237,.14); --pf-soft2:rgba(124,58,237,.08); }
+    body[data-partner="tvd"]        { --pf-main:#ea580c; --pf-soft:rgba(234,88,12,.14);  --pf-soft2:rgba(234,88,12,.08); }
+    body[data-partner="wir_finanz"] { --pf-main:#0f766e; --pf-soft:rgba(15,118,110,.14); --pf-soft2:rgba(15,118,110,.08); }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:
+        radial-gradient(1200px 800px at 15% 10%, var(--pf-soft), transparent 55%),
+        radial-gradient(1200px 800px at 85% 0%, var(--pf-soft2), transparent 55%),
+        linear-gradient(180deg, #eef5ff, var(--bg));
+      color:var(--text);
+    }
+
+    header{
+      padding: 18px 18px 10px;
+      position: sticky;
+      top:0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: rgba(244,248,255,.88);
+      border-bottom:1px solid var(--line);
+    }
+
+    .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+    .title{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .badge{
+      font-family:var(--mono);font-size:12px;padding:6px 10px;border:1px solid var(--line);
+      border-radius:999px;color:var(--muted);background: rgba(255,255,255,.7);
+    }
+    h1{font-size:20px;margin:0;letter-spacing:.2px;}
+
+    .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    button{
+      appearance:none;border:1px solid var(--line);
+      background: rgba(255,255,255,.85);
+      color: var(--text);
+      padding:10px 12px;border-radius: 12px;cursor:pointer;transition:.15s ease;font-weight:700;font-size:13px;
+      box-shadow: 0 6px 14px rgba(11,27,51,.06);
+    }
+    button:hover{transform: translateY(-1px);border-color: rgba(29,78,216,.35);}
+    button:active{transform: translateY(0px);}
+
+    .primary{
+      background: linear-gradient(135deg, var(--pf-main), color-mix(in srgb, var(--pf-main) 70%, #000 0%));
+      color:#fff;border-color: color-mix(in srgb, var(--pf-main) 60%, #fff 0%);
+      box-shadow: 0 10px 20px color-mix(in srgb, var(--pf-main) 18%, transparent);
+    }
+    .ghost{background: rgba(255,255,255,.70);}
+    .good{border-color: rgba(16,185,129,.40);}
+    .danger{border-color: rgba(244,63,94,.35);}
+
+    main{padding: 16px 18px 70px;max-width: 1450px;margin: 0 auto;}
+
+    /* Linke Seite extra groß */
+    .grid{display:grid;grid-template-columns: 2.2fr .8fr;gap:18px;}
+    @media (max-width: 980px){ .grid{grid-template-columns: 1fr;} }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.86));
+      border:1px solid var(--line);border-radius: var(--radius);box-shadow: var(--shadow);padding: var(--pad2);
+    }
+    .card h2{margin:0 0 10px;font-size:15px;letter-spacing:.2px;}
+    .sub{margin:0 0 14px;color: var(--muted);font-size:13px;line-height:1.35;}
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center;justify-content:space-between;}
+    .tabsLeft{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .tab{
+      padding:8px 10px;border-radius: 999px;border:1px solid var(--line);
+      background: rgba(255,255,255,.75);color: var(--muted);font-weight:800;font-size:12px;cursor:pointer;user-select:none;
+    }
+    .tab.active{
+      color: var(--pf-main);
+      background: var(--pf-soft);
+      border-color: color-mix(in srgb, var(--pf-main) 45%, transparent);
+    }
+
+    .chip{font-size:11px;padding:5px 8px;border-radius:999px;border:1px solid var(--line);color: var(--muted);background: rgba(255,255,255,.75);}
+    .chip.due{ border-color: rgba(245,158,11,.40); color: rgba(161,98,7,1); background: var(--amber); }
+    .chip.overdue{ border-color: rgba(244,63,94,.35); color: rgba(190,18,60,1); background: var(--red); }
+    .chip.ok{ border-color: rgba(16,185,129,.35); color: rgba(5,150,105,1); background: var(--green); }
+
+    .searchStrip{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+    }
+    .fieldish{
+      display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius: 14px;border:1px solid var(--line);
+      background: rgba(255,255,255,.78);min-width: 360px;flex: 1;
+    }
+    .fieldish input[type="text"]{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-size:13px;padding:0;}
+    .mini{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+    .row{display:grid;grid-template-columns: repeat(12, 1fr);gap:10px;margin-bottom:10px;align-items:end;}
+    .field{grid-column: span 3;display:flex;flex-direction:column;gap:6px;min-width: 0;}
+    .field.w2{grid-column: span 2;}
+    .field.w4{grid-column: span 4;}
+    .field.w6{grid-column: span 6;}
+    .field.w8{grid-column: span 8;}
+    .field.w10{grid-column: span 10;}
+    .field.w12{grid-column: span 12;}
+
+    label{font-size:12px;color: var(--muted);font-weight:700;}
+
+    input, select, textarea{
+      width:100%;padding:10px 10px;border-radius: 12px;border:1px solid var(--line);
+      background: rgba(255,255,255,.92);color: var(--text);outline:none;font-size:13px;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: color-mix(in srgb, var(--pf-main) 55%, transparent);
+      box-shadow: 0 0 0 3px var(--pf-soft2);
+    }
+    textarea{min-height: 76px;resize: vertical;}
+
+    input[type="checkbox"]{width:auto;transform: scale(1.05);accent-color: var(--pf-main);}
+
+    .inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .small{font-size:12px;color: var(--muted);}
+    .divider{height:1px;background: var(--line);margin: 14px 0;}
+
+    .recordbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px;}
+    .recordbar .left, .recordbar .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .pill{
+      padding:8px 10px;border-radius: 999px;border:1px dashed color-mix(in srgb, var(--pf-main) 25%, transparent);
+      background: var(--pf-soft2);color: var(--muted);font-size:12px;font-family: var(--mono);
+    }
+
+    .kpis{display:grid;grid-template-columns: repeat(2, 1fr);gap:10px;}
+    .kpi{border:1px solid var(--line);border-radius: 16px;padding: 12px;background: rgba(255,255,255,.86);}
+    .kpi .k{font-size:12px;color: var(--muted);margin-bottom:6px;font-weight:800;}
+    .kpi .v{font-size:18px;font-weight:900;letter-spacing:.2px;}
+    .kpi .v code{font-family: var(--mono);font-size: 16px;color: var(--pf-main);background: transparent;}
+    .kpi .t{font-size:12px;color: var(--muted);margin-top:4px;}
+
+    .list{display:flex;flex-direction:column;gap:10px;}
+    .task{border:1px solid var(--line);border-radius: 16px;padding: 12px;background: rgba(255,255,255,.86);}
+    .task .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+    .task .who{font-weight:900;}
+    .task .meta{color: var(--muted);font-size:12px;font-family: var(--mono);}
+    .task .topic{color: var(--text);font-size:13px;line-height:1.35;}
+
+    .yearBox{border:1px solid var(--line);border-radius: 16px;padding: 12px;background: rgba(255,255,255,.86);margin-top: 10px;}
+    .yearTop{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom: 10px;}
+    .tableWrap{overflow:auto;border-radius: 14px;border:1px solid var(--line);}
+    table{width:100%;border-collapse: collapse;min-width: 760px;background: rgba(255,255,255,.90);}
+    th, td{padding:10px 10px;border-bottom:1px solid rgba(11,27,51,.08);text-align:right;font-size:12px;white-space:nowrap;vertical-align: middle;}
+    th:first-child, td:first-child{ text-align:left; }
+    th{
+      color: var(--muted);font-weight:900;position: sticky;top: 0;background: rgba(240,247,255,.96);
+      backdrop-filter: blur(6px);z-index: 2;
+    }
+    tr:hover td{ background: var(--pf-soft2); }
+
+    /* Quick actions inside form */
+    .quickActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+    }
+    .qaLeft, .qaRight{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .iconBtn{
+      padding:8px 10px;border-radius: 12px;border:1px solid var(--line);
+      background: var(--pf-soft2);cursor:pointer;color: var(--pf-main);font-weight:900;font-size:12px;
+      box-shadow:none;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .iconBtn:hover{ border-color: color-mix(in srgb, var(--pf-main) 45%, transparent); transform: translateY(-1px); }
+
+    /* Ampel */
+    .ampel{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.75);
+      padding:8px 10px;
+      border-radius: 14px;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background:#999;box-shadow:0 0 0 3px rgba(0,0,0,.04) inset;}
+    .dot.green{background: rgb(16,185,129);}
+    .dot.amber{background: rgb(245,158,11);}
+    .dot.red{background: rgb(244,63,94);}
+
+    .fav{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.78);
+      cursor:pointer;
+      user-select:none;
+      font-weight:900;
+      color: var(--muted);
+    }
+    .fav.active{
+      color: var(--pf-main);
+      border-color: color-mix(in srgb, var(--pf-main) 45%, transparent);
+      background: var(--pf-soft2);
+    }
+
+    /* Print */
+    @media print{
+      header, .no-print{ display:none !important; }
+      body{ background:#fff; color:#000; }
+      .card{ box-shadow:none; border:1px solid #ddd; }
+      #formCard{ border-top: 8px solid var(--pf-main) !important; }
+      input, select, textarea{ color:#000; background:#fff; border:1px solid #bbb; }
+      .kpi, .task, .yearBox{ background:#fff; border:1px solid #ddd; }
+      .tableWrap{ border:1px solid #ddd; }
+      table{ background:#fff; }
+      th{ background:#f3f3f3; }
+      th, td{ border-bottom:1px solid #e2e2e2; }
+    }
+  </style>
+</head>
+
+<body>
+<header class="no-print">
+  <div class="topbar">
+    <div class="title">
+      <h1>Vertriebspartner</h1>
+      <span class="badge" id="statusBadge">bereit</span>
+      <span class="badge" id="searchBadge" style="display:none">Filter aktiv</span>
+      <span class="badge" id="globalBadge" style="display:none">Global-Suche</span>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="btnSave">Speichern</button>
+      <button id="btnPrint">Drucken</button>
+      <button class="ghost" id="btnAddCustom">Neue Felder erstellen</button>
+      <button class="ghost" id="btnDeleteCustom">Feld löschen</button>
+      <button class="ghost" id="btnWiedervorlage">Wiedervorlage</button>
+      <button class="ghost" id="btnVoll">Vollproduktion</button>
+      <button class="ghost" id="btnBeihilfe">Beihilfeproduktion</button>
+      <button class="ghost" id="btnZusatz">Zusatzproduktion</button>
+      <button class="ghost" id="btnBkv">bKV</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tabsLeft" id="partnerTabs"></div>
+    <div class="inline">
+      <span class="pill" id="dbInfo">—</span>
+    </div>
+  </div>
+
+  <div class="searchStrip">
+    <div class="fieldish">
+      <span class="chip ok">Suche</span>
+      <input id="searchInput" type="text" placeholder="Name, Firma, E-Mail, Mobil/Telefon, Adresse, MAK/Partnernr, Anlass, Notiz, WV …" />
+      <button class="ghost" id="btnClearSearch" title="Suche löschen">✕</button>
+    </div>
+
+    <div class="mini">
+      <label class="inline" style="gap:8px">
+        <input type="checkbox" id="chkGlobalSearch" />
+        <span class="small">über alle Partner</span>
+      </label>
+
+      <label class="inline" style="gap:8px">
+        <input type="checkbox" id="chkOnlyOpenTasks" />
+        <span class="small">nur offene Wiedervorlagen</span>
+      </label>
+
+      <label class="inline" style="gap:8px">
+        <input type="checkbox" id="chkThisYearOnly" />
+        <span class="small">nur Jahr</span>
+      </label>
+
+      <select id="yearFilter" style="min-width:110px"></select>
+      <span class="chip" id="searchCount">0 Treffer</span>
+      <button class="ghost" id="btnShowResults">Trefferliste</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card" id="formCard">
+      <h2 id="partnerTitle">Partner</h2>
+      <p class="sub" id="partnerSub">
+        Breite Felder + Partner-Farben + Quick-Actions + Favorit + Ampel + Kontakt-Historie + Online-Abschluss.
+      </p>
+
+      <div class="recordbar">
+        <div class="left">
+          <span class="pill">Reiter / Datensatz</span>
+          <select id="recordSelect" style="min-width:360px"></select>
+          <button class="good" id="btnNewRecord">+ Neuer Reiter</button>
+          <button class="danger" id="btnDeleteRecord">Reiter löschen</button>
+        </div>
+        <div class="right">
+          <span class="pill" id="recordHint">—</span>
+        </div>
+      </div>
+
+      <div id="dynamicForm"></div>
+
+      <div class="quickActions no-print">
+        <div class="qaLeft">
+          <div class="fav" id="favToggle" title="Favorit markieren">★ Favorit</div>
+          <div class="ampel" title="Ampel basiert auf Gesamtproduktion vs. Gesamtziel">
+            <span class="dot" id="ampelDot"></span>
+            <span class="small" id="ampelText">Ampel</span>
+          </div>
+          <span class="pill" id="onlineChip" style="display:none">Online Abschluss</span>
+        </div>
+        <div class="qaRight">
+          <a class="iconBtn" id="btnCopyAddress" href="javascript:void(0)">📋 Adresse kopieren</a>
+          <a class="iconBtn" id="btnCopyPhones" href="javascript:void(0)">📞 Tel/Mobil kopieren</a>
+          <a class="iconBtn" id="btnCall" href="javascript:void(0)">☎️ Anrufen</a>
+          <a class="iconBtn" id="btnMail" href="javascript:void(0)">✉️ E-Mail</a>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="inline no-print">
+        <span class="small">Speicherung lokal im Browser (localStorage). Export/Import unten.</span>
+      </div>
+
+      <div class="row no-print" style="margin-top:10px">
+        <div class="field w6">
+          <button class="ghost" id="btnExport">Export (JSON)</button>
+        </div>
+        <div class="field w6">
+          <label>Import (JSON)</label>
+          <input type="file" id="importFile" accept="application/json" />
+        </div>
+      </div>
+    </section>
+
+    <aside class="card" id="dashCard">
+      <h2>Übersicht</h2>
+      <p class="sub">Summen (Produktion & Ziele) des aktuellen Partners + offene Wiedervorlagen (inkl. Kontakt-Follow-ups).</p>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="divider"></div>
+
+      <div class="inline" style="justify-content:space-between">
+        <h2 style="margin:0;font-size:15px">Offene Wiedervorlagen</h2>
+        <span class="chip" id="openCount">0</span>
+      </div>
+      <div class="list" id="taskList" style="margin-top:10px"></div>
+
+      <div class="divider"></div>
+
+      <div class="yearBox">
+        <div class="yearTop">
+          <div class="left">
+            <h2 style="margin:0">Jahresauswertung</h2>
+            <span class="chip" id="yearPartnerChip">—</span>
+          </div>
+          <div class="inline">
+            <span class="small">Jahr</span>
+            <select id="yearSelect" style="min-width:110px"></select>
+            <button class="ghost no-print" id="btnYearCsv">CSV Export</button>
+            <button class="ghost no-print" id="btnYearPrint">Drucken</button>
+          </div>
+        </div>
+
+        <div class="tableWrap" id="yearTableWrap">
+          <table id="yearTable">
+            <thead>
+              <tr>
+                <th>Monat</th>
+                <th>Prod Voll</th><th>Ziel Voll</th><th>%</th>
+                <th>Prod Beihilfe</th><th>Ziel Beihilfe</th><th>%</th>
+                <th>Prod Zusatz</th><th>Ziel Zusatz</th><th>%</th>
+                <th>Prod bKV</th><th>Ziel bKV</th><th>%</th>
+                <th>Gesamt Prod</th><th>Gesamt Ziel</th><th>%</th>
+              </tr>
+            </thead>
+            <tbody id="yearTbody"></tbody>
+            <tfoot id="yearTfoot"></tfoot>
+          </table>
+        </div>
+
+        <div class="small" style="margin-top:10px; color:var(--muted)">
+          Logik: pro Reiter zählt das <b>Datum</b> des Datensatzes. Produktion/Ziel werden je Monat summiert.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Trefferliste -->
+  <div class="card no-print" id="resultsCard" style="display:none; margin-top:14px">
+    <div class="inline" style="justify-content:space-between; margin-bottom:8px">
+      <h2 style="margin:0">Trefferliste</h2>
+      <div class="inline">
+        <span class="chip" id="resultsMeta">—</span>
+        <button class="ghost" id="btnCloseResults">Schließen</button>
+      </div>
+    </div>
+    <p class="sub" style="margin-bottom:10px">Klick auf einen Treffer → springt zum passenden Reiter.</p>
+    <div class="list" id="resultsList"></div>
+  </div>
+</main>
+
+<script>
+(() => {
+  const STORAGE_KEY = "vertriebspartner_db_v9_contacts";
+
+  const Partners = [
+    { key:"fonds_finanz", name:"Fonds Finanz", hasMak:true,  roleType:"fonds" },
+    { key:"demv",        name:"DEMV",        hasMak:true,  roleType:"fonds" },
+    { key:"taures",      name:"Taures",      hasMak:false, roleType:"account" },
+    { key:"tvd",         name:"TVD",         hasMak:false, roleType:"account" },
+    { key:"wir_finanz",  name:"WIR-Finanz",  hasMak:false, roleType:"account" },
+  ];
+
+  const ROLE_DROPDOWN_FONDS = [
+    "RD","Direkt","Struktur","Bank","Marketing",
+    "Bereichsleiter Vertrieb","Leiter dezentraler Vertrieb","Leiter Struktur"
+  ];
+  const ROLE_DROPDOWN_ACCOUNT = ["Account","Leiter","Bereichsleiter"];
+  const MONTHS = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+
+  const $ = (id) => document.getElementById(id);
+
+  const statusBadge = $("statusBadge");
+  const searchBadge = $("searchBadge");
+  const globalBadge = $("globalBadge");
+  const dbInfo = $("dbInfo");
+
+  const partnerTabs = $("partnerTabs");
+  const partnerTitle = $("partnerTitle");
+  const partnerSub = $("partnerSub");
+  const recordSelect = $("recordSelect");
+  const dynamicForm = $("dynamicForm");
+  const recordHint = $("recordHint");
+
+  const kpis = $("kpis");
+  const taskList = $("taskList");
+  const openCount = $("openCount");
+
+  const yearSelect = $("yearSelect");
+  const yearPartnerChip = $("yearPartnerChip");
+  const yearTbody = $("yearTbody");
+  const yearTfoot = $("yearTfoot");
+  const btnYearCsv = $("btnYearCsv");
+  const btnYearPrint = $("btnYearPrint");
+
+  const searchInput = $("searchInput");
+  const btnClearSearch = $("btnClearSearch");
+  const chkGlobalSearch = $("chkGlobalSearch");
+  const chkOnlyOpenTasks = $("chkOnlyOpenTasks");
+  const chkThisYearOnly = $("chkThisYearOnly");
+  const yearFilter = $("yearFilter");
+  const searchCount = $("searchCount");
+  const btnShowResults = $("btnShowResults");
+
+  const resultsCard = $("resultsCard");
+  const resultsList = $("resultsList");
+  const resultsMeta = $("resultsMeta");
+  const btnCloseResults = $("btnCloseResults");
+
+  // Quick actions
+  const btnCopyAddress = $("btnCopyAddress");
+  const btnCopyPhones = $("btnCopyPhones");
+  const btnCall = $("btnCall");
+  const btnMail = $("btnMail");
+  const favToggle = $("favToggle");
+  const ampelDot = $("ampelDot");
+  const ampelText = $("ampelText");
+  const onlineChip = $("onlineChip");
+
+  // ---------- Utilities ----------
+  const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+  const todayISO = () => new Date().toISOString().slice(0,10);
+  const currentYear = () => new Date().getFullYear();
+
+  const moneyParse = (v) => {
+    if (v === null || v === undefined) return 0;
+    const s = String(v).trim().replace(/\./g,"").replace(",",".");
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  };
+  const moneyFmt = (n) => Number(n||0).toLocaleString("de-DE", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  const pct = (a,b) => { const A=Number(a||0), B=Number(b||0); if(!B) return "—"; return ((A/B)*100).toLocaleString("de-DE",{maximumFractionDigits:0})+"%"; };
+
+  const setStatus = (txt, kind="") => {
+    statusBadge.textContent = txt;
+    statusBadge.style.borderColor = kind==="ok" ? "rgba(16,185,129,.35)" :
+                                   kind==="warn" ? "rgba(245,158,11,.35)" :
+                                   kind==="bad" ? "rgba(244,63,94,.35)" :
+                                   "rgba(11,27,51,.18)";
+    statusBadge.style.color = kind==="ok" ? "rgba(5,150,105,1)" :
+                             kind==="warn" ? "rgba(161,98,7,1)" :
+                             kind==="bad" ? "rgba(190,18,60,1)" :
+                             "var(--muted)";
+  };
+
+  function escapeHtml(str){
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function yearFromISO(iso){ if(!iso||typeof iso!=="string") return null; const y=parseInt(iso.slice(0,4),10); return Number.isFinite(y)?y:null; }
+  function monthIndexFromISO(iso){ if(!iso||typeof iso!=="string") return null; const m=parseInt(iso.slice(5,7),10); if(!Number.isFinite(m)) return null; const idx=m-1; return (idx>=0&&idx<12)?idx:null; }
+
+  async function copyToClipboard(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      setStatus("kopiert", "ok");
+      setTimeout(()=>setStatus("bereit",""), 700);
+    }catch(e){
+      alert("Kopieren nicht möglich (Browser-Sicherheit). Bitte manuell markieren.");
+    }
+  }
+
+  // ---------- Schema ----------
+  function baseRecord(partner) {
+    const rec = {
+      id: uid(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+
+      favorit: false,
+      onlineAbschluss: false,
+
+      makNummer: "",
+      partnerNummer: "",
+      datum: todayISO(),
+      rolle: "",
+
+      name: "",
+      firma: "",
+      email: "",
+      mobil: "",
+      telefon: "",
+      strasse: "",
+      plz: "",
+      ort: "",
+      land: "DE",
+
+      optin: false,
+
+      // Produktion/Ziele
+      prodVoll: "", zielVoll: "",
+      prodBeihilfe: "", zielBeihilfe: "",
+      prodZusatz: "", zielZusatz: "",
+      prodBkv: "", zielBkv: "",
+
+      freiesFeld: "",
+
+      // Wiedervorlage allgemein
+      wiedervorlageDatum: "",
+      wiedervorlageThema: "",
+      wiedervorlageErledigt: false,
+
+      // ✅ Kontakt-Historie (beliebig viele)
+      kontakte: [
+        { id: uid(), datum:"", anlass:"", notiz:"", followUpDatum:"", followUpThema:"", followUpErledigt:false }
+      ],
+
+      custom: {}
+    };
+    if (!partner.hasMak) rec.makNummer = undefined;
+    return rec;
+  }
+
+  function defaultDB() {
+    const db = {
+      activePartnerKey: Partners[0].key,
+      partners: {},
+      ui: { search:"", globalSearch:false, onlyOpenTasks:false, thisYearOnly:false, yearFilter: currentYear() }
+    };
+    for (const p of Partners) {
+      db.partners[p.key] = { customFields: [], records: [ baseRecord(p) ], activeRecordId: null };
+      db.partners[p.key].activeRecordId = db.partners[p.key].records[0].id;
+    }
+    return db;
+  }
+
+  function loadDB() {
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultDB();
+      const parsed = JSON.parse(raw);
+
+      parsed.partners ||= {};
+      parsed.ui ||= {};
+      parsed.ui.search ||= "";
+      parsed.ui.globalSearch ||= false;
+      parsed.ui.onlyOpenTasks ||= false;
+      parsed.ui.thisYearOnly ||= false;
+      parsed.ui.yearFilter ||= currentYear();
+
+      for (const p of Partners) {
+        if (!parsed.partners[p.key]) {
+          parsed.partners[p.key] = { customFields: [], records:[baseRecord(p)], activeRecordId:null };
+          parsed.partners[p.key].activeRecordId = parsed.partners[p.key].records[0].id;
+        }
+        const ps = parsed.partners[p.key];
+        ps.customFields ||= [];
+        ps.records ||= [];
+        if (ps.records.length === 0) ps.records.push(baseRecord(p));
+        ps.activeRecordId ||= ps.records[0].id;
+
+        for (const r of ps.records) {
+          r.custom ||= {};
+          r.updatedAt ||= r.createdAt || new Date().toISOString();
+
+          r.telefon ??= "";
+          r.strasse ??= "";
+          r.plz ??= "";
+          r.ort ??= "";
+          r.land ??= "DE";
+          r.favorit ??= false;
+          r.onlineAbschluss ??= false;
+
+          // Migration: Kontakt-Historie (falls alte Single-Felder existieren)
+          if (!Array.isArray(r.kontakte)) {
+            const datum = r.kontaktLetztesDatum || "";
+            const anlass = r.kontaktAnlass || "";
+            const followUpDatum = r.kontaktNaechstesDatum || "";
+            const followUpThema = r.kontaktNaechstesThema || "";
+            const followUpErledigt = !!r.kontaktNaechstesErledigt;
+
+            r.kontakte = [{
+              id: uid(),
+              datum,
+              anlass,
+              notiz: "",
+              followUpDatum,
+              followUpThema,
+              followUpErledigt
+            }];
+          }
+          if (!r.kontakte.length) {
+            r.kontakte.push({ id: uid(), datum:"", anlass:"", notiz:"", followUpDatum:"", followUpThema:"", followUpErledigt:false });
+          }
+
+          delete r.kontaktLetztesDatum;
+          delete r.kontaktAnlass;
+          delete r.kontaktNaechstesDatum;
+          delete r.kontaktNaechstesThema;
+          delete r.kontaktNaechstesErledigt;
+        }
+      }
+      parsed.activePartnerKey ||= Partners[0].key;
+      return parsed;
+    }catch(e){
+      console.warn("DB load failed", e);
+      return defaultDB();
+    }
+  }
+
+  let db = loadDB();
+
+  function saveDB() {
+    db._lastSavedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    setStatus("gespeichert", "ok");
+    setTimeout(() => setStatus("bereit",""), 800);
+    renderDbInfo();
+  }
+
+  function renderDbInfo() {
+    const total = Partners.reduce((acc,p)=>acc + (db.partners[p.key]?.records?.length||0), 0);
+    const y = db.ui?.yearFilter ?? currentYear();
+    const gs = db.ui?.globalSearch ? "on" : "off";
+    dbInfo.textContent = `Datensätze: ${total} · Jahrfilter: ${y} · Global: ${gs}`;
+  }
+
+  // ---------- Partner ----------
+  function renderTabs() {
+    partnerTabs.innerHTML = "";
+    for (const p of Partners) {
+      const el = document.createElement("div");
+      el.className = "tab" + (db.activePartnerKey === p.key ? " active" : "");
+      el.textContent = p.name;
+      el.onclick = () => { db.activePartnerKey = p.key; saveDB(); renderAll(); };
+      partnerTabs.appendChild(el);
+    }
+  }
+  function getActivePartner() { return Partners.find(x => x.key === db.activePartnerKey) || Partners[0]; }
+  function getPartnerState(partnerKey) { return db.partners[partnerKey]; }
+  function getActiveRecordState() {
+    const partner = getActivePartner();
+    const ps = getPartnerState(partner.key);
+    const rec = ps.records.find(r => r.id === ps.activeRecordId) || ps.records[0];
+    return { partner, ps, rec };
+  }
+
+  // ---------- UI sync ----------
+  function hydrateSearchUI() {
+    const u = db.ui || {};
+    searchInput.value = u.search || "";
+    chkGlobalSearch.checked = !!u.globalSearch;
+    chkOnlyOpenTasks.checked = !!u.onlyOpenTasks;
+    chkThisYearOnly.checked = !!u.thisYearOnly;
+    yearFilter.value = String(u.yearFilter ?? currentYear());
+    globalBadge.style.display = chkGlobalSearch.checked ? "" : "none";
+  }
+  function persistSearchUI() {
+    db.ui = db.ui || {};
+    db.ui.search = searchInput.value || "";
+    db.ui.globalSearch = !!chkGlobalSearch.checked;
+    db.ui.onlyOpenTasks = !!chkOnlyOpenTasks.checked;
+    db.ui.thisYearOnly = !!chkThisYearOnly.checked;
+    db.ui.yearFilter = parseInt(yearFilter.value, 10) || currentYear();
+    saveDB();
+    globalBadge.style.display = db.ui.globalSearch ? "" : "none";
+  }
+
+  // ---------- Record dropdown ----------
+  function recordLabel(partner, r, idx){
+    const labelName = (r.name || r.firma || "ohne Name").trim();
+    const labelNr = partner.hasMak ? (r.makNummer || r.partnerNummer || "") : (r.partnerNummer || "");
+    const d = r.datum ? r.datum : "";
+    const fav = r.favorit ? " ★" : "";
+    return `Reiter ${idx+1} — ${labelName}${labelNr ? " ("+labelNr+")" : ""}${d ? " · " + d : ""}${fav}`;
+  }
+
+  function renderRecordSelect() {
+    const { partner, ps } = getActiveRecordState();
+    recordSelect.innerHTML = "";
+    ps.records.forEach((r, idx) => {
+      const opt = document.createElement("option");
+      opt.value = r.id;
+      opt.textContent = recordLabel(partner, r, idx);
+      if (r.id === ps.activeRecordId) opt.selected = true;
+      recordSelect.appendChild(opt);
+    });
+    recordSelect.onchange = () => { ps.activeRecordId = recordSelect.value; saveDB(); renderAll(); };
+  }
+
+  // ---------- Field builders ----------
+  function inputField({ id, label, type="text", value="", placeholder="", span="w4", attrs={} }) {
+    const wrap = document.createElement("div");
+    wrap.className = `field ${span}`;
+
+    const lab = document.createElement("label");
+    lab.textContent = label;
+    lab.htmlFor = id;
+
+    let el;
+    if (type === "textarea") {
+      el = document.createElement("textarea");
+      el.value = value || "";
+      if (placeholder) el.placeholder = placeholder;
+    } else if (type === "checkbox") {
+      const line = document.createElement("div");
+      line.className = "inline";
+      el = document.createElement("input");
+      el.type = "checkbox";
+      el.checked = !!value;
+      el.id = id;
+      const t = document.createElement("span");
+      t.className = "small";
+      t.textContent = placeholder || "Ja/Nein";
+      line.appendChild(el);
+      line.appendChild(t);
+      wrap.appendChild(lab);
+      wrap.appendChild(line);
+      return { wrap, el };
+    } else {
+      el = document.createElement("input");
+      el.type = type;
+      el.value = value ?? "";
+      if (placeholder) el.placeholder = placeholder;
+    }
+    el.id = id;
+    for (const [k,v] of Object.entries(attrs || {})) el.setAttribute(k, v);
+    wrap.appendChild(lab);
+    wrap.appendChild(el);
+    return { wrap, el };
+  }
+
+  function selectField({ id, label, options=[], value="", span="w12" }) {
+    const wrap = document.createElement("div");
+    wrap.className = `field ${span}`;
+
+    const lab = document.createElement("label");
+    lab.textContent = label;
+    lab.htmlFor = id;
+
+    const sel = document.createElement("select");
+    sel.id = id;
+
+    const empty = document.createElement("option");
+    empty.value = "";
+    empty.textContent = "— bitte wählen —";
+    sel.appendChild(empty);
+
+    for (const o of options) {
+      const opt = document.createElement("option");
+      opt.value = o;
+      opt.textContent = o;
+      if (o === value) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    wrap.appendChild(lab);
+    wrap.appendChild(sel);
+    return { wrap, sel };
+  }
+
+  function dividerEl(){ const d = document.createElement("div"); d.className="divider"; return d; }
+  function touch(rec){ rec.updatedAt = new Date().toISOString(); setStatus("ungespeichert","warn"); }
+
+  // ---------- Search ----------
+  const normalize = (s)=> (s||"").toString().toLowerCase().trim();
+
+  function recordSearchText(partner, r){
+    const kontaktParts = [];
+    if (Array.isArray(r.kontakte)) {
+      for (const k of r.kontakte) {
+        kontaktParts.push(
+          k.datum, k.anlass, k.notiz,
+          k.followUpDatum, k.followUpThema,
+          k.followUpErledigt ? "erledigt" : "offen"
+        );
+      }
+    }
+
+    const parts = [
+      partner.name,
+      r.name, r.firma, r.email, r.mobil, r.telefon,
+      r.strasse, r.plz, r.ort, r.land,
+      r.rolle,
+      r.makNummer, r.partnerNummer,
+      r.freiesFeld,
+      r.wiedervorlageDatum, r.wiedervorlageThema,
+      ...kontaktParts,
+      r.datum
+    ];
+    if (r.custom) for (const v of Object.values(r.custom)) parts.push(v);
+    return normalize(parts.filter(Boolean).join(" | "));
+  }
+
+  function recordHasOpenKontaktWV(r){
+    if (!Array.isArray(r.kontakte)) return false;
+    return r.kontakte.some(k => (!!(k.followUpDatum || k.followUpThema)) && !k.followUpErledigt);
+  }
+
+  function recordMatchesFilters(partner, r){
+    const q = normalize(searchInput.value);
+    const onlyOpen = chkOnlyOpenTasks.checked;
+    const thisYearOnly = chkThisYearOnly.checked;
+    const yf = parseInt(yearFilter.value, 10) || currentYear();
+
+    if (thisYearOnly) if (yearFromISO(r.datum) !== yf) return false;
+
+    if (onlyOpen) {
+      const openGeneral = (!!(r.wiedervorlageDatum || r.wiedervorlageThema)) && !r.wiedervorlageErledigt;
+      const openKontakt = recordHasOpenKontaktWV(r);
+      if (!(openGeneral || openKontakt)) return false;
+    }
+
+    if (q) if (!recordSearchText(partner, r).includes(q)) return false;
+    return true;
+  }
+
+  function collectFilteredRecords() {
+    if (chkGlobalSearch.checked) {
+      const res = [];
+      for (const p of Partners) {
+        const ps = getPartnerState(p.key);
+        ps.records.forEach((r, idx) => {
+          if (recordMatchesFilters(p, r)) res.push({ partnerKey:p.key, partnerName:p.name, partner:p, r, idx });
+        });
+      }
+      return res;
+    } else {
+      const { partner, ps } = getActiveRecordState();
+      return ps.records
+        .map((r, idx) => ({ partnerKey:partner.key, partnerName:partner.name, partner, r, idx }))
+        .filter(x => recordMatchesFilters(partner, x.r));
+    }
+  }
+
+  function renderSearchStatsInner() {
+    const qActive = (normalize(searchInput.value) || chkOnlyOpenTasks.checked || chkThisYearOnly.checked);
+    searchBadge.style.display = qActive ? "" : "none";
+    globalBadge.style.display = chkGlobalSearch.checked ? "" : "none";
+    const filtered = collectFilteredRecords();
+    searchCount.textContent = `${filtered.length} Treffer`;
+    return filtered;
+  }
+
+  // ---------- Helpers for UI texts ----------
+  function getLatestContactText(r){
+    if (!Array.isArray(r.kontakte) || !r.kontakte.length) return "";
+    // latest by datum if available; otherwise last entry
+    const sorted = [...r.kontakte].sort((a,b)=> (b.datum||"").localeCompare(a.datum||""));
+    const k = sorted[0];
+    return [k.datum ? `Kontakt ${k.datum}` : "Kontakt", k.anlass || k.notiz || ""].filter(Boolean).join(": ");
+  }
+
+  // ---------- Trefferliste ----------
+  function renderResultsList() {
+    const filtered = renderSearchStatsInner();
+    resultsList.innerHTML = "";
+    resultsMeta.textContent = `${chkGlobalSearch.checked ? "alle Partner" : getActivePartner().name} · ${filtered.length} Treffer`;
+
+    if (!filtered.length) {
+      const empty = document.createElement("div");
+      empty.className = "task";
+      empty.innerHTML = `<div class="small">Keine Treffer.</div>`;
+      resultsList.appendChild(empty);
+      return;
+    }
+
+    for (const {partnerKey, partnerName, r, idx} of filtered) {
+      const who = (r.name || r.firma || "ohne Name").trim();
+      const hint = r.wiedervorlageThema ? `WV: ${r.wiedervorlageThema}` : (getLatestContactText(r) || "—");
+
+      const card = document.createElement("div");
+      card.className = "task";
+      card.innerHTML = `
+        <div class="head">
+          <div>
+            <div class="who">${escapeHtml(who)}${r.favorit ? " ★" : ""}</div>
+            <div class="meta">${escapeHtml(partnerName)} · Reiter ${idx+1} · ${r.datum || ""}</div>
+          </div>
+          <div class="inline">
+            <button class="ghost" data-open="${partnerKey}::${r.id}">Öffnen</button>
+          </div>
+        </div>
+        <div class="topic">${escapeHtml(hint)}</div>
+      `;
+      card.querySelector("button[data-open]")?.addEventListener("click", (e) => {
+        const [pk, rid] = e.currentTarget.getAttribute("data-open").split("::");
+        db.activePartnerKey = pk;
+        const ps = getPartnerState(pk);
+        ps.activeRecordId = rid;
+        saveDB();
+        renderAll();
+        resultsCard.style.display = "none";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      resultsList.appendChild(card);
+    }
+  }
+
+  // ---------- Dashboard ----------
+  function sumPartner(partnerKey) {
+    const ps = getPartnerState(partnerKey);
+    const totals = { prodVoll:0, zielVoll:0, prodBeihilfe:0, zielBeihilfe:0, prodZusatz:0, zielZusatz:0, prodBkv:0, zielBkv:0 };
+    for (const r of ps.records) {
+      totals.prodVoll += moneyParse(r.prodVoll); totals.zielVoll += moneyParse(r.zielVoll);
+      totals.prodBeihilfe += moneyParse(r.prodBeihilfe); totals.zielBeihilfe += moneyParse(r.zielBeihilfe);
+      totals.prodZusatz += moneyParse(r.prodZusatz); totals.zielZusatz += moneyParse(r.zielZusatz);
+      totals.prodBkv += moneyParse(r.prodBkv); totals.zielBkv += moneyParse(r.zielBkv);
+    }
+    return totals;
+  }
+
+  function getOpenTasksForPartner(partnerKey) {
+    const ps = getPartnerState(partnerKey);
+    const items = [];
+
+    for (const r of ps.records) {
+      const openGeneral = (!!(r.wiedervorlageDatum || r.wiedervorlageThema)) && !r.wiedervorlageErledigt;
+      if (openGeneral) items.push({ type:"WV", rec:r, date:(r.wiedervorlageDatum || "9999-12-31"), topic:(r.wiedervorlageThema || "") });
+
+      if (Array.isArray(r.kontakte)) {
+        for (const k of r.kontakte) {
+          const openKontakt = (!!(k.followUpDatum || k.followUpThema)) && !k.followUpErledigt;
+          if (openKontakt) items.push({ type:"Kontakt-WV", rec:r, contact:k, date:(k.followUpDatum || "9999-12-31"), topic:(k.followUpThema || "") });
+        }
+      }
+    }
+
+    items.sort((a,b)=> (a.date||"9999-12-31").localeCompare(b.date||"9999-12-31"));
+    return items;
+  }
+
+  function totalProd(rec){
+    return moneyParse(rec.prodVoll)+moneyParse(rec.prodBeihilfe)+moneyParse(rec.prodZusatz)+moneyParse(rec.prodBkv);
+  }
+  function totalZiel(rec){
+    return moneyParse(rec.zielVoll)+moneyParse(rec.zielBeihilfe)+moneyParse(rec.zielZusatz)+moneyParse(rec.zielBkv);
+  }
+
+  function renderDashboard() {
+    const partner = getActivePartner();
+    const totals = sumPartner(partner.key);
+
+    const cards = [
+      { k:"Vollproduktion", v: moneyFmt(totals.prodVoll), t:`Ziel: ${moneyFmt(totals.zielVoll)} € · ${pct(totals.prodVoll, totals.zielVoll)}` },
+      { k:"Beihilfe",       v: moneyFmt(totals.prodBeihilfe), t:`Ziel: ${moneyFmt(totals.zielBeihilfe)} € · ${pct(totals.prodBeihilfe, totals.zielBeihilfe)}` },
+      { k:"Zusatz",         v: moneyFmt(totals.prodZusatz), t:`Ziel: ${moneyFmt(totals.zielZusatz)} € · ${pct(totals.prodZusatz, totals.zielZusatz)}` },
+      { k:"bKV",            v: moneyFmt(totals.prodBkv), t:`Ziel: ${moneyFmt(totals.zielBkv)} € · ${pct(totals.prodBkv, totals.zielBkv)}` },
+    ];
+
+    kpis.innerHTML = "";
+    for (const c of cards) {
+      const el = document.createElement("div");
+      el.className = "kpi";
+      el.innerHTML = `
+        <div class="k">${c.k}</div>
+        <div class="v"><code>${c.v}</code> €</div>
+        <div class="t">${c.t}</div>
+      `;
+      kpis.appendChild(el);
+    }
+
+    const ps = getPartnerState(partner.key);
+    const tasks = getOpenTasksForPartner(partner.key);
+    openCount.textContent = String(tasks.length);
+
+    taskList.innerHTML = "";
+    if (!tasks.length) {
+      const empty = document.createElement("div");
+      empty.className = "task";
+      empty.innerHTML = `<div class="small">Keine offenen Wiedervorlagen für <b>${partner.name}</b>.</div>`;
+      taskList.appendChild(empty);
+    } else {
+      tasks.slice(0, 10).forEach((t) => {
+        const r = t.rec;
+        const idx = ps.records.findIndex(x => x.id === r.id);
+        const who = (r.name || r.firma || "ohne Name").trim();
+
+        const label = t.type;
+        const date = t.date || "";
+        const topic = t.topic || "";
+
+        const el = document.createElement("div");
+        el.className = "task";
+        el.innerHTML = `
+          <div class="head">
+            <div>
+              <div class="who">${escapeHtml(who)}${r.favorit ? " ★" : ""}</div>
+              <div class="meta">${partner.name} · Reiter ${idx+1} · ${label}${date ? " · " + date : ""}</div>
+            </div>
+            <div class="inline">
+              <span class="chip due">${label}</span>
+              <button class="ghost no-print" data-jump="${r.id}">Zum Reiter</button>
+            </div>
+          </div>
+          <div class="topic">${topic ? escapeHtml(topic) : "<span class='small'>—</span>"}</div>
+        `;
+        el.querySelector("button[data-jump]")?.addEventListener("click", (e) => {
+          ps.activeRecordId = e.currentTarget.getAttribute("data-jump");
+          saveDB();
+          renderAll();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        taskList.appendChild(el);
+      });
+    }
+
+    renderYearTable();
+  }
+
+  // ---------- Year evaluation ----------
+  function getAllYearsAllPartners() {
+    const set = new Set();
+    for (const p of Partners) {
+      const ps = getPartnerState(p.key);
+      for (const r of ps.records) {
+        const y = yearFromISO(r.datum);
+        if (y) set.add(y);
+      }
+    }
+    if (!set.size) set.add(currentYear());
+    return Array.from(set).sort((a,b)=>b-a);
+  }
+  function getAllYearsForPartner(partnerKey) {
+    const ps = getPartnerState(partnerKey);
+    const set = new Set();
+    for (const r of ps.records) {
+      const y = yearFromISO(r.datum);
+      if (y) set.add(y);
+    }
+    if (!set.size) set.add(currentYear());
+    return Array.from(set).sort((a,b)=>b-a);
+  }
+
+  function hydrateYearSelects() {
+    const yearsAll = getAllYearsAllPartners();
+    const want = (db.ui?.yearFilter ?? currentYear());
+
+    yearFilter.innerHTML = "";
+    yearsAll.forEach(y=>{
+      const o = document.createElement("option");
+      o.value = String(y);
+      o.textContent = String(y);
+      if (y === want) o.selected = true;
+      yearFilter.appendChild(o);
+    });
+
+    const partner = getActivePartner();
+    const yearsPartner = getAllYearsForPartner(partner.key);
+
+    yearSelect.innerHTML = "";
+    yearsPartner.forEach(y=>{
+      const o = document.createElement("option");
+      o.value = String(y);
+      o.textContent = String(y);
+      if (y === want) o.selected = true;
+      yearSelect.appendChild(o);
+    });
+
+    if (!yearsPartner.includes(want)) yearSelect.value = String(yearsPartner[0]);
+    yearPartnerChip.textContent = partner.name;
+  }
+
+  function monthlyBuckets() {
+    const partner = getActivePartner();
+    const ps = getPartnerState(partner.key);
+    const y = parseInt(yearSelect.value, 10) || currentYear();
+
+    const buckets = Array.from({length:12}, ()=>({
+      prodVoll:0, zielVoll:0,
+      prodBeihilfe:0, zielBeihilfe:0,
+      prodZusatz:0, zielZusatz:0,
+      prodBkv:0, zielBkv:0
+    }));
+
+    for (const r of ps.records) {
+      if (yearFromISO(r.datum) !== y) continue;
+      const mi = monthIndexFromISO(r.datum);
+      if (mi === null) continue;
+      const b = buckets[mi];
+
+      b.prodVoll += moneyParse(r.prodVoll);     b.zielVoll += moneyParse(r.zielVoll);
+      b.prodBeihilfe += moneyParse(r.prodBeihilfe); b.zielBeihilfe += moneyParse(r.zielBeihilfe);
+      b.prodZusatz += moneyParse(r.prodZusatz); b.zielZusatz += moneyParse(r.zielZusatz);
+      b.prodBkv += moneyParse(r.prodBkv);       b.zielBkv += moneyParse(r.zielBkv);
+    }
+    return buckets;
+  }
+
+  function renderYearTable() {
+    const partner = getActivePartner();
+    const y = parseInt(yearSelect.value, 10) || currentYear();
+    yearPartnerChip.textContent = `${partner.name} · ${y}`;
+
+    const buckets = monthlyBuckets();
+    yearTbody.innerHTML = "";
+    yearTfoot.innerHTML = "";
+
+    const totals = { prodVoll:0, zielVoll:0, prodBeihilfe:0, zielBeihilfe:0, prodZusatz:0, zielZusatz:0, prodBkv:0, zielBkv:0 };
+
+    buckets.forEach((b, i) => {
+      const totalP = b.prodVoll + b.prodBeihilfe + b.prodZusatz + b.prodBkv;
+      const totalZ = b.zielVoll + b.zielBeihilfe + b.zielZusatz + b.zielBkv;
+
+      totals.prodVoll += b.prodVoll; totals.zielVoll += b.zielVoll;
+      totals.prodBeihilfe += b.prodBeihilfe; totals.zielBeihilfe += b.zielBeihilfe;
+      totals.prodZusatz += b.prodZusatz; totals.zielZusatz += b.zielZusatz;
+      totals.prodBkv += b.prodBkv; totals.zielBkv += b.zielBkv;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${MONTHS[i]}</td>
+        <td>${moneyFmt(b.prodVoll)}</td><td>${moneyFmt(b.zielVoll)}</td><td>${pct(b.prodVoll,b.zielVoll)}</td>
+        <td>${moneyFmt(b.prodBeihilfe)}</td><td>${moneyFmt(b.zielBeihilfe)}</td><td>${pct(b.prodBeihilfe,b.zielBeihilfe)}</td>
+        <td>${moneyFmt(b.prodZusatz)}</td><td>${moneyFmt(b.zielZusatz)}</td><td>${pct(b.prodZusatz,b.zielZusatz)}</td>
+        <td>${moneyFmt(b.prodBkv)}</td><td>${moneyFmt(b.zielBkv)}</td><td>${pct(b.prodBkv,b.zielBkv)}</td>
+        <td><b>${moneyFmt(totalP)}</b></td><td><b>${moneyFmt(totalZ)}</b></td><td><b>${pct(totalP,totalZ)}</b></td>
+      `;
+      yearTbody.appendChild(tr);
+    });
+
+    const grandProd = totals.prodVoll + totals.prodBeihilfe + totals.prodZusatz + totals.prodBkv;
+    const grandZiel = totals.zielVoll + totals.zielBeihilfe + totals.zielZusatz + totals.zielBkv;
+
+    const tf = document.createElement("tr");
+    tf.innerHTML = `
+      <td><b>Summe</b></td>
+      <td><b>${moneyFmt(totals.prodVoll)}</b></td><td><b>${moneyFmt(totals.zielVoll)}</b></td><td><b>${pct(totals.prodVoll,totals.zielVoll)}</b></td>
+      <td><b>${moneyFmt(totals.prodBeihilfe)}</b></td><td><b>${moneyFmt(totals.zielBeihilfe)}</b></td><td><b>${pct(totals.prodBeihilfe,totals.zielBeihilfe)}</b></td>
+      <td><b>${moneyFmt(totals.prodZusatz)}</b></td><td><b>${moneyFmt(totals.zielZusatz)}</b></td><td><b>${pct(totals.prodZusatz,totals.zielZusatz)}</b></td>
+      <td><b>${moneyFmt(totals.prodBkv)}</b></td><td><b>${moneyFmt(totals.zielBkv)}</b></td><td><b>${pct(totals.prodBkv,totals.zielBkv)}</b></td>
+      <td><b>${moneyFmt(grandProd)}</b></td><td><b>${moneyFmt(grandZiel)}</b></td><td><b>${pct(grandProd,grandZiel)}</b></td>
+    `;
+    yearTfoot.appendChild(tf);
+
+    renderAmpelAndChips();
+  }
+
+  function buildYearCsv() {
+    const partner = getActivePartner();
+    const y = parseInt(yearSelect.value, 10) || currentYear();
+    const buckets = monthlyBuckets();
+
+    const header = [
+      "Partner","Jahr","Monat",
+      "Prod Voll","Ziel Voll","%",
+      "Prod Beihilfe","Ziel Beihilfe","%",
+      "Prod Zusatz","Ziel Zusatz","%",
+      "Prod bKV","Ziel bKV","%",
+      "Gesamt Prod","Gesamt Ziel","%"
+    ];
+    const rows = [header];
+
+    buckets.forEach((b, i) => {
+      const totalP = b.prodVoll + b.prodBeihilfe + b.prodZusatz + b.prodBkv;
+      const totalZ = b.zielVoll + b.zielBeihilfe + b.zielZusatz + b.zielBkv;
+      rows.push([
+        partner.name, y, MONTHS[i],
+        moneyFmt(b.prodVoll), moneyFmt(b.zielVoll), pct(b.prodVoll,b.zielVoll),
+        moneyFmt(b.prodBeihilfe), moneyFmt(b.zielBeihilfe), pct(b.prodBeihilfe,b.zielBeihilfe),
+        moneyFmt(b.prodZusatz), moneyFmt(b.zielZusatz), pct(b.prodZusatz,b.zielZusatz),
+        moneyFmt(b.prodBkv), moneyFmt(b.zielBkv), pct(b.prodBkv,b.zielBkv),
+        moneyFmt(totalP), moneyFmt(totalZ), pct(totalP,totalZ)
+      ]);
+    });
+
+    return rows.map(r => r.map(v => {
+      const s = (v===null || v===undefined) ? "" : String(v);
+      return /[;"\n\r]/.test(s) ? '"' + s.replaceAll('"','""') + '"' : s;
+    }).join(";")).join("\n");
+  }
+
+  // ---------- Form ----------
+  function renderForm() {
+    const { partner, ps, rec } = getActiveRecordState();
+    partnerTitle.textContent = partner.name;
+    partnerSub.textContent = "Breite Felder (Telefon/Adresse), Online-Abschluss, Kontakt-Historie (mit Follow-up), Partner-Farbe, Favorit, Ampel, Copy/Call.";
+    recordHint.textContent = `Datensatz-ID: ${rec.id.slice(0,8)} · geändert: ${new Date(rec.updatedAt).toLocaleString("de-DE")}`;
+    dynamicForm.innerHTML = "";
+
+    // Row 1: IDs + Datum + Rolle
+    const r1 = document.createElement("div"); r1.className = "row";
+    if (partner.hasMak) {
+      const fMak = inputField({ id:"makNummer", label:"MAK-Nummer", value: rec.makNummer || "", placeholder:"z. B. 123456", span:"w4" });
+      const fPnr = inputField({ id:"partnerNummer", label:"Partnernummer", value: rec.partnerNummer || "", placeholder:"optional", span:"w4" });
+      r1.appendChild(fMak.wrap); r1.appendChild(fPnr.wrap);
+      fMak.el.oninput = () => { rec.makNummer = fMak.el.value; touch(rec); renderRecordSelect(); };
+      fPnr.el.oninput = () => { rec.partnerNummer = fPnr.el.value; touch(rec); renderRecordSelect(); };
+    } else {
+      const fPnr = inputField({ id:"partnerNummer", label:"Partnernummer", value: rec.partnerNummer || "", placeholder:"z. B. TAU-…", span:"w6" });
+      r1.appendChild(fPnr.wrap);
+      fPnr.el.oninput = () => { rec.partnerNummer = fPnr.el.value; touch(rec); renderRecordSelect(); };
+    }
+
+    const fDatum = inputField({ id:"datum", label:"Datum", type:"date", value: rec.datum || todayISO(), span:"w4" });
+    r1.appendChild(fDatum.wrap);
+    fDatum.el.onchange = () => { rec.datum = fDatum.el.value; touch(rec); renderDashboard(); renderYearTable(); renderRecordSelect(); };
+
+    const roleOptions = partner.roleType === "fonds" ? ROLE_DROPDOWN_FONDS : ROLE_DROPDOWN_ACCOUNT;
+    const fRole = selectField({ id:"rolle", label:"Rolle", options: roleOptions, value: rec.rolle || "", span:"w12" });
+    r1.appendChild(fRole.wrap);
+    fRole.sel.onchange = () => { rec.rolle = fRole.sel.value; touch(rec); };
+
+    dynamicForm.appendChild(r1);
+
+    // Row 2: Name/Firma/Email
+    const r2 = document.createElement("div"); r2.className = "row";
+    const fName = inputField({ id:"name", label:"Name", value: rec.name || "", placeholder:"Vorname Nachname", span:"w4" });
+    const fFirma = inputField({ id:"firma", label:"Firma", value: rec.firma || "", placeholder:"Unternehmen / Einheit", span:"w4" });
+    const fEmail = inputField({ id:"email", label:"E-Mail", type:"email", value: rec.email || "", placeholder:"name@firma.de", span:"w4" });
+    r2.appendChild(fName.wrap); r2.appendChild(fFirma.wrap); r2.appendChild(fEmail.wrap);
+    fName.el.oninput = () => { rec.name = fName.el.value; touch(rec); renderRecordSelect(); };
+    fFirma.el.oninput = () => { rec.firma = fFirma.el.value; touch(rec); renderRecordSelect(); };
+    fEmail.el.oninput = () => { rec.email = fEmail.el.value; touch(rec); };
+    dynamicForm.appendChild(r2);
+
+    // Row 3: Mobil + Telefon (breit) + Optin + Online Abschluss
+    const r3 = document.createElement("div"); r3.className = "row";
+    const fMobil = inputField({ id:"mobil", label:"Mobil", type:"tel", value: rec.mobil || "", placeholder:"+49 …", span:"w6" });
+    const fTelefon = inputField({ id:"telefon", label:"Telefon (Festnetz)", type:"tel", value: rec.telefon || "", placeholder:"z. B. 0711 …", span:"w6" });
+    const fOptin = inputField({ id:"optin", label:"Optin", type:"checkbox", value: !!rec.optin, placeholder:"Einwilligung liegt vor", span:"w6" });
+    const fOnline = inputField({ id:"onlineAbschluss", label:"Online Abschluss", type:"checkbox", value: !!rec.onlineAbschluss, placeholder:"wird / wurde online abgeschlossen", span:"w6" });
+    r3.appendChild(fMobil.wrap); r3.appendChild(fTelefon.wrap); r3.appendChild(fOptin.wrap); r3.appendChild(fOnline.wrap);
+
+    fMobil.el.oninput = () => { rec.mobil = fMobil.el.value; touch(rec); };
+    fTelefon.el.oninput = () => { rec.telefon = fTelefon.el.value; touch(rec); };
+    fOptin.el.onchange = () => { rec.optin = fOptin.el.checked; touch(rec); };
+    fOnline.el.onchange = () => { rec.onlineAbschluss = fOnline.el.checked; touch(rec); renderAmpelAndChips(); };
+
+    dynamicForm.appendChild(r3);
+
+    // Adresse
+    dynamicForm.appendChild(dividerEl());
+    const hA = document.createElement("h2"); hA.textContent="Adresse"; dynamicForm.appendChild(hA);
+
+    const rA1 = document.createElement("div"); rA1.className="row";
+    const fStr = inputField({ id:"strasse", label:"Straße / Hausnummer", value: rec.strasse || "", placeholder:"z. B. Musterstraße 12", span:"w12" });
+    rA1.appendChild(fStr.wrap);
+    dynamicForm.appendChild(rA1);
+
+    const rA2 = document.createElement("div"); rA2.className="row";
+    const fPlz = inputField({ id:"plz", label:"PLZ", value: rec.plz || "", placeholder:"z. B. 70173", span:"w4" });
+    const fOrt = inputField({ id:"ort", label:"Ort", value: rec.ort || "", placeholder:"z. B. Stuttgart", span:"w6" });
+    const fLand = inputField({ id:"land", label:"Land", value: rec.land || "DE", placeholder:"DE", span:"w2" });
+    rA2.appendChild(fPlz.wrap); rA2.appendChild(fOrt.wrap); rA2.appendChild(fLand.wrap);
+    dynamicForm.appendChild(rA2);
+
+    fStr.el.oninput=()=>{ rec.strasse=fStr.el.value; touch(rec); };
+    fPlz.el.oninput=()=>{ rec.plz=fPlz.el.value; touch(rec); };
+    fOrt.el.oninput=()=>{ rec.ort=fOrt.el.value; touch(rec); };
+    fLand.el.oninput=()=>{ rec.land=fLand.el.value; touch(rec); };
+
+    // ✅ Kontakt-Historie
+    dynamicForm.appendChild(dividerEl());
+    const hK = document.createElement("h2");
+    hK.textContent = "Kontakt-Historie (regelmäßiger Austausch)";
+    dynamicForm.appendChild(hK);
+
+    rec.kontakte ||= [];
+    if (!rec.kontakte.length) {
+      rec.kontakte.push({ id: uid(), datum:"", anlass:"", notiz:"", followUpDatum:"", followUpThema:"", followUpErledigt:false });
+    }
+
+    const addBtnRow = document.createElement("div");
+    addBtnRow.className = "inline no-print";
+    addBtnRow.style.justifyContent = "space-between";
+    addBtnRow.innerHTML = `
+      <span class="small">Beliebig viele Kontakte pro Reiter. Follow-up = Kontakt-Wiedervorlage.</span>
+      <button class="good" id="btnAddKontakt">+ Kontakt hinzufügen</button>
+    `;
+    dynamicForm.appendChild(addBtnRow);
+
+    const kontakteWrap = document.createElement("div");
+    kontakteWrap.className = "list";
+    kontakteWrap.style.marginTop = "10px";
+    dynamicForm.appendChild(kontakteWrap);
+
+    function renderKontakte() {
+      kontakteWrap.innerHTML = "";
+
+      rec.kontakte.forEach((k, i) => {
+        const box = document.createElement("div");
+        box.className = "task";
+
+        const followActive = !!(k.followUpDatum || k.followUpThema);
+        const followLabel = followActive ? (k.followUpErledigt ? "· Follow-up erledigt" : "· Follow-up offen") : "";
+
+        box.innerHTML = `
+          <div class="head">
+            <div>
+              <div class="who">Kontakt ${i+1}</div>
+              <div class="meta">${k.datum ? k.datum : "—"} ${followLabel}</div>
+            </div>
+            <div class="inline no-print">
+              <button class="danger" data-del="${k.id}">Kontakt löschen</button>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:8px">
+            <div class="field w4">
+              <label>Kontakt-Datum</label>
+              <input type="date" data-kdate="${k.id}" value="${escapeHtml(k.datum || "")}">
+            </div>
+            <div class="field w8">
+              <label>Anlass</label>
+              <input type="text" data-kanlass="${k.id}" value="${escapeHtml(k.anlass || "")}" placeholder="z. B. Jour Fixe, Jahresgespräch, Kampagne …">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field w12">
+              <label>Notiz</label>
+              <textarea data-knotiz="${k.id}" placeholder="Kurznotiz / Ergebnis / ToDos …">${escapeHtml(k.notiz || "")}</textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field w4">
+              <label>Follow-up Datum</label>
+              <input type="date" data-kfu-date="${k.id}" value="${escapeHtml(k.followUpDatum || "")}">
+            </div>
+            <div class="field w8">
+              <label>Follow-up Thema</label>
+              <input type="text" data-kfu-topic="${k.id}" value="${escapeHtml(k.followUpThema || "")}" placeholder="Was soll beim nächsten Kontakt besprochen werden?">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field w6">
+              <label>Follow-up erledigt</label>
+              <div class="inline">
+                <input type="checkbox" data-kfu-done="${k.id}" ${k.followUpErledigt ? "checked" : ""}>
+                <span class="small">Kontakt-Wiedervorlage erledigt</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Wire inputs
+        box.querySelector(`[data-kdate="${k.id}"]`).addEventListener("change", (e)=>{
+          k.datum=e.target.value; touch(rec); renderSearchStatsInner();
+        });
+        box.querySelector(`[data-kanlass="${k.id}"]`).addEventListener("input", (e)=>{
+          k.anlass=e.target.value; touch(rec); renderSearchStatsInner();
+        });
+        box.querySelector(`[data-knotiz="${k.id}"]`).addEventListener("input", (e)=>{
+          k.notiz=e.target.value; touch(rec); renderSearchStatsInner();
+        });
+
+        box.querySelector(`[data-kfu-date="${k.id}"]`).addEventListener("change", (e)=>{
+          k.followUpDatum=e.target.value;
+          if(!k.followUpDatum && !k.followUpThema) k.followUpErledigt=false;
+          touch(rec); renderDashboard(); renderSearchStatsInner();
+        });
+        box.querySelector(`[data-kfu-topic="${k.id}"]`).addEventListener("input", (e)=>{
+          k.followUpThema=e.target.value;
+          if(!k.followUpDatum && !k.followUpThema) k.followUpErledigt=false;
+          touch(rec); renderDashboard(); renderSearchStatsInner();
+        });
+        box.querySelector(`[data-kfu-done="${k.id}"]`).addEventListener("change", (e)=>{
+          k.followUpErledigt=e.target.checked;
+          touch(rec); renderDashboard(); renderSearchStatsInner();
+        });
+
+        // Delete
+        box.querySelector(`[data-del="${k.id}"]`).addEventListener("click", ()=>{
+          if (!confirm("Kontakt wirklich löschen?")) return;
+          rec.kontakte = rec.kontakte.filter(x=>x.id!==k.id);
+          if (!rec.kontakte.length) rec.kontakte.push({ id: uid(), datum:"", anlass:"", notiz:"", followUpDatum:"", followUpThema:"", followUpErledigt:false });
+          touch(rec);
+          renderKontakte();
+          renderDashboard();
+          renderSearchStatsInner();
+        });
+
+        kontakteWrap.appendChild(box);
+      });
+    }
+
+    $("btnAddKontakt").addEventListener("click", ()=>{
+      rec.kontakte.push({ id: uid(), datum: todayISO(), anlass:"", notiz:"", followUpDatum:"", followUpThema:"", followUpErledigt:false });
+      touch(rec);
+      renderKontakte();
+      renderDashboard();
+      renderSearchStatsInner();
+    });
+
+    renderKontakte();
+
+    // Freies Feld
+    const fFree = inputField({ id:"freiesFeld", label:"Freies Feld", type:"textarea", value: rec.freiesFeld || "", placeholder:"Notizen …", span:"w12" });
+    dynamicForm.appendChild(fFree.wrap);
+    fFree.el.oninput = () => { rec.freiesFeld = fFree.el.value; touch(rec); };
+
+    // Wiedervorlage (allgemein)
+    dynamicForm.appendChild(dividerEl());
+    const hW = document.createElement("h2"); hW.textContent="Wiedervorlage (allgemein)"; dynamicForm.appendChild(hW);
+
+    const rW = document.createElement("div"); rW.className="row";
+    const wDate = inputField({ id:"wiedervorlageDatum", label:"Wiedervorlage Datum", type:"date", value: rec.wiedervorlageDatum || "", span:"w4" });
+    const wDone = inputField({ id:"wiedervorlageErledigt", label:"Erledigt", type:"checkbox", value: !!rec.wiedervorlageErledigt, placeholder:"Wiedervorlage abgeschlossen", span:"w4" });
+    rW.appendChild(wDate.wrap); rW.appendChild(wDone.wrap);
+    dynamicForm.appendChild(rW);
+
+    wDate.el.onchange=()=>{ rec.wiedervorlageDatum=wDate.el.value; touch(rec); renderDashboard(); renderSearchStatsInner(); };
+    wDone.el.onchange=()=>{ rec.wiedervorlageErledigt=wDone.el.checked; touch(rec); renderDashboard(); renderSearchStatsInner(); };
+
+    const wTopic = inputField({ id:"wiedervorlageThema", label:"Thema / Beschreibung", type:"textarea", value: rec.wiedervorlageThema || "", placeholder:"Worum geht’s? …", span:"w12" });
+    dynamicForm.appendChild(wTopic.wrap);
+    wTopic.el.oninput=()=>{ rec.wiedervorlageThema=wTopic.el.value; touch(rec); renderDashboard(); renderSearchStatsInner(); };
+
+    // Produktion
+    dynamicForm.appendChild(dividerEl());
+    const hP = document.createElement("h2"); hP.textContent = "Produktion & Ziele (€)"; dynamicForm.appendChild(hP);
+
+    const rP = document.createElement("div"); rP.className="row";
+    const pv = inputField({ id:"prodVoll", label:"Produktion Voll", value: rec.prodVoll || "", placeholder:"z. B. 12.500", span:"w3", attrs:{inputmode:"decimal"}});
+    const zv = inputField({ id:"zielVoll", label:"Ziel Voll", value: rec.zielVoll || "", span:"w3", attrs:{inputmode:"decimal"}});
+    const pb = inputField({ id:"prodBeihilfe", label:"Produktion Beihilfe", value: rec.prodBeihilfe || "", span:"w3", attrs:{inputmode:"decimal"}});
+    const zb = inputField({ id:"zielBeihilfe", label:"Ziel Beihilfe", value: rec.zielBeihilfe || "", span:"w3", attrs:{inputmode:"decimal"}});
+    const pz = inputField({ id:"prodZusatz", label:"Produktion Zusatz", value: rec.prodZusatz || "", span:"w3", attrs:{inputmode:"decimal"}});
+    const zz = inputField({ id:"zielZusatz", label:"Ziel Zusatz", value: rec.zielZusatz || "", span:"w3", attrs:{inputmode:"decimal"}});
+    const pk = inputField({ id:"prodBkv", label:"Produktion bKV", value: rec.prodBkv || "", span:"w3", attrs:{inputmode:"decimal"}});
+    const zk = inputField({ id:"zielBkv", label:"Ziel bKV", value: rec.zielBkv || "", span:"w3", attrs:{inputmode:"decimal"}});
+    [pv,zv,pb,zb,pz,zz,pk,zk].forEach(x=>rP.appendChild(x.wrap));
+    dynamicForm.appendChild(rP);
+
+    function onMoney(){
+      touch(rec);
+      renderDashboard();
+      renderYearTable();
+      renderAmpelAndChips();
+    }
+    pv.el.oninput=()=>{ rec.prodVoll=pv.el.value; onMoney(); };
+    zv.el.oninput=()=>{ rec.zielVoll=zv.el.value; onMoney(); };
+    pb.el.oninput=()=>{ rec.prodBeihilfe=pb.el.value; onMoney(); };
+    zb.el.oninput=()=>{ rec.zielBeihilfe=zb.el.value; onMoney(); };
+    pz.el.oninput=()=>{ rec.prodZusatz=pz.el.value; onMoney(); };
+    zz.el.oninput=()=>{ rec.zielZusatz=zz.el.value; onMoney(); };
+    pk.el.oninput=()=>{ rec.prodBkv=pk.el.value; onMoney(); };
+    zk.el.oninput=()=>{ rec.zielBkv=zk.el.value; onMoney(); };
+
+    // Zusatzfelder (Custom)
+    if (ps.customFields?.length) {
+      dynamicForm.appendChild(dividerEl());
+      const hC = document.createElement("h2"); hC.textContent = "Zusatzfelder (Custom)"; dynamicForm.appendChild(hC);
+
+      const rC = document.createElement("div"); rC.className = "row";
+      ps.customFields.forEach(cf => {
+        const id = "cf_" + cf.id;
+        const type = cf.type === "textarea" ? "textarea" : (cf.type === "checkbox" ? "checkbox" : (cf.type || "text"));
+        const val = rec.custom?.[cf.id];
+
+        const f = inputField({
+          id,
+          label: cf.label,
+          type,
+          value: type === "checkbox" ? !!val : (val ?? ""),
+          placeholder: type === "checkbox" ? "Ja/Nein" : "",
+          span: (type === "textarea") ? "w12" : "w4"
+        });
+
+        rC.appendChild(f.wrap);
+
+        if (type === "checkbox") {
+          f.el.onchange = () => { rec.custom[cf.id] = f.el.checked; touch(rec); renderSearchStatsInner(); };
+        } else {
+          f.el.oninput = () => { rec.custom[cf.id] = f.el.value; touch(rec); renderSearchStatsInner(); };
+        }
+      });
+      dynamicForm.appendChild(rC);
+    }
+
+    renderAmpelAndChips();
+    wireQuickActions();
+    renderDashboard();
+  }
+
+  // ---------- Favorit + Ampel + Quick actions ----------
+  function renderAmpelAndChips(){
+    const { rec } = getActiveRecordState();
+
+    favToggle.classList.toggle("active", !!rec.favorit);
+    onlineChip.style.display = rec.onlineAbschluss ? "" : "none";
+
+    const p = totalProd(rec);
+    const z = totalZiel(rec);
+    let ratio = z > 0 ? (p / z) : null;
+
+    ampelDot.classList.remove("green","amber","red");
+    if (ratio === null){
+      ampelDot.classList.add("amber");
+      ampelText.textContent = "Ampel: kein Ziel";
+      return;
+    }
+    if (ratio >= 1.0){
+      ampelDot.classList.add("green");
+      ampelText.textContent = `Ampel: Ziel erreicht (${Math.round(ratio*100)}%)`;
+    } else if (ratio >= 0.7){
+      ampelDot.classList.add("amber");
+      ampelText.textContent = `Ampel: im Plan (${Math.round(ratio*100)}%)`;
+    } else {
+      ampelDot.classList.add("red");
+      ampelText.textContent = `Ampel: kritisch (${Math.round(ratio*100)}%)`;
+    }
+  }
+
+  function wireQuickActions(){
+    const { rec } = getActiveRecordState();
+
+    favToggle.onclick = () => {
+      rec.favorit = !rec.favorit;
+      touch(rec);
+      renderAmpelAndChips();
+      renderRecordSelect();
+    };
+
+    btnCopyAddress.onclick = () => {
+      const a = [
+        rec.firma || "",
+        rec.name || "",
+        rec.strasse || "",
+        [rec.plz || "", rec.ort || ""].join(" ").trim(),
+        rec.land || ""
+      ].filter(Boolean).join("\n");
+      if (!a.trim()) return alert("Keine Adresse eingetragen.");
+      copyToClipboard(a);
+    };
+
+    btnCopyPhones.onclick = () => {
+      const t = [
+        rec.telefon ? `Telefon: ${rec.telefon}` : "",
+        rec.mobil ? `Mobil: ${rec.mobil}` : ""
+      ].filter(Boolean).join("\n");
+      if (!t.trim()) return alert("Keine Telefonnummer eingetragen.");
+      copyToClipboard(t);
+    };
+
+    btnCall.onclick = () => {
+      const nr = (rec.telefon || rec.mobil || "").trim();
+      if (!nr) return alert("Keine Telefonnummer vorhanden (Telefon oder Mobil).");
+      window.location.href = `tel:${encodeURIComponent(nr.replace(/\s+/g,""))}`;
+    };
+
+    btnMail.onclick = () => {
+      const em = (rec.email || "").trim();
+      if (!em) return alert("Keine E-Mail vorhanden.");
+      const subject = encodeURIComponent(`${getActivePartner().name} – Kontakt`);
+      window.location.href = `mailto:${encodeURIComponent(em)}?subject=${subject}`;
+    };
+  }
+
+  // ---------- Render ----------
+  function renderAll() {
+    document.body.setAttribute("data-partner", db.activePartnerKey);
+
+    renderTabs();
+    hydrateYearSelects();
+    hydrateSearchUI();
+    renderRecordSelect();
+    renderForm();
+    renderSearchStatsInner();
+    renderDbInfo();
+  }
+
+  // ---------- Actions ----------
+  $("btnSave").addEventListener("click", () => saveDB());
+  $("btnPrint").addEventListener("click", () => window.print());
+
+  $("btnNewRecord").addEventListener("click", () => {
+    const partner = getActivePartner();
+    const ps = getPartnerState(partner.key);
+    const rec = baseRecord(partner);
+    ps.records.push(rec);
+    ps.activeRecordId = rec.id;
+    saveDB();
+    renderAll();
+  });
+
+  $("btnDeleteRecord").addEventListener("click", () => {
+    const { partner, ps, rec } = getActiveRecordState();
+    if (ps.records.length <= 1) { alert("Mindestens 1 Reiter muss bestehen bleiben."); return; }
+    const ok = confirm(`Reiter wirklich löschen?\n\nPartner: ${partner.name}\nDatensatz: ${rec.name || rec.firma || rec.id}`);
+    if (!ok) return;
+    ps.records = ps.records.filter(r => r.id !== rec.id);
+    ps.activeRecordId = ps.records[0].id;
+    saveDB();
+    renderAll();
+  });
+
+  $("btnAddCustom").addEventListener("click", () => {
+    const { ps } = getActiveRecordState();
+    const label = prompt("Name des neuen Feldes:");
+    if (!label) return;
+    const type = prompt("Typ (text | number | date | checkbox | textarea):", "text");
+    const allowed = ["text","number","date","checkbox","textarea"];
+    const finalType = allowed.includes((type||"").trim()) ? type.trim() : "text";
+    ps.customFields.push({ id: uid(), label: label.trim(), type: finalType });
+    saveDB();
+    renderAll();
+  });
+
+  $("btnDeleteCustom").addEventListener("click", () => {
+    const { partner, ps } = getActiveRecordState();
+    if (!ps.customFields.length) return alert("Keine Custom-Felder vorhanden.");
+
+    const names = ps.customFields.map((cf, i)=> `${i+1}) ${cf.label} [${cf.type}]`).join("\n");
+    const pick = prompt(`Welches Feld bei "${partner.name}" löschen?\n\n${names}\n\nBitte Nummer eingeben:`, "1");
+    if (!pick) return;
+
+    const idx = parseInt(pick, 10) - 1;
+    if (!Number.isFinite(idx) || idx < 0 || idx >= ps.customFields.length) return alert("Ungültige Nummer.");
+
+    const cf = ps.customFields[idx];
+    const ok = confirm(`Feld wirklich löschen?\n\n${cf.label} (${cf.type})\n\nHinweis: Werte in allen Reitern dieses Partners werden entfernt.`);
+    if (!ok) return;
+
+    ps.customFields.splice(idx, 1);
+    for (const r of ps.records) {
+      if (r.custom && Object.prototype.hasOwnProperty.call(r.custom, cf.id)) {
+        delete r.custom[cf.id];
+        r.updatedAt = new Date().toISOString();
+      }
+    }
+    saveDB();
+    renderAll();
+  });
+
+  $("btnWiedervorlage").addEventListener("click", () => {
+    const el = document.querySelector("#wiedervorlageThema");
+    if (el) el.scrollIntoView({ behavior:"smooth", block:"center" });
+  });
+
+  function focusMoneyField(id){
+    const el = document.getElementById(id);
+    if (el){ el.focus(); el.scrollIntoView({ behavior:"smooth", block:"center" }); }
+  }
+  $("btnVoll").addEventListener("click", () => focusMoneyField("prodVoll"));
+  $("btnBeihilfe").addEventListener("click", () => focusMoneyField("prodBeihilfe"));
+  $("btnZusatz").addEventListener("click", () => focusMoneyField("prodZusatz"));
+  $("btnBkv").addEventListener("click", () => focusMoneyField("prodBkv"));
+
+  $("btnExport").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "vertriebspartner-export.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  $("importFile").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try{
+      const text = await file.text();
+      const imported = JSON.parse(text);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+      db = loadDB();
+      setStatus("importiert","ok");
+      renderAll();
+    }catch(err){
+      console.error(err);
+      alert("Import fehlgeschlagen (ungültige JSON).");
+    } finally {
+      e.target.value = "";
+    }
+  });
+
+  function applySearchAndUpdate(){
+    persistSearchUI();
+    renderSearchStatsInner();
+    if (resultsCard.style.display !== "none") renderResultsList();
+  }
+
+  searchInput.addEventListener("input", () => {
+    db.ui = db.ui || {};
+    db.ui.search = searchInput.value || "";
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    renderSearchStatsInner();
+    if (resultsCard.style.display !== "none") renderResultsList();
+  });
+
+  btnClearSearch.addEventListener("click", () => {
+    searchInput.value = "";
+    chkGlobalSearch.checked = false;
+    chkOnlyOpenTasks.checked = false;
+    chkThisYearOnly.checked = false;
+    yearFilter.value = String(currentYear());
+    yearSelect.value = yearFilter.value;
+    applySearchAndUpdate();
+    renderYearTable();
+  });
+
+  chkGlobalSearch.addEventListener("change", applySearchAndUpdate);
+  chkOnlyOpenTasks.addEventListener("change", applySearchAndUpdate);
+  chkThisYearOnly.addEventListener("change", applySearchAndUpdate);
+
+  yearFilter.addEventListener("change", () => {
+    yearSelect.value = yearFilter.value;
+    applySearchAndUpdate();
+    renderYearTable();
+  });
+
+  // Trefferliste open/close
+  btnShowResults.addEventListener("click", () => {
+    resultsCard.style.display = "";
+    renderResultsList();
+    resultsCard.scrollIntoView({ behavior:"smooth", block:"start" });
+  });
+  btnCloseResults.addEventListener("click", () => resultsCard.style.display = "none");
+
+  // Year actions
+  yearSelect.addEventListener("change", () => {
+    yearFilter.value = yearSelect.value;
+    applySearchAndUpdate();
+    renderYearTable();
+  });
+  btnYearCsv.addEventListener("click", () => {
+    const blob = new Blob([buildYearCsv()], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const partner = getActivePartner();
+    const y = parseInt(yearSelect.value, 10) || currentYear();
+    a.download = `jahresauswertung_${partner.name.replaceAll(" ","_")}_${y}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  btnYearPrint.addEventListener("click", () => window.print());
+
+  // Init
+  setStatus("bereit","");
+  renderAll();
+})();
+</script>
+</body>
+</html>
