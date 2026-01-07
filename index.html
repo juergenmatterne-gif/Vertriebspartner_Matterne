@@ -578,6 +578,7 @@ const ROLE_DROPDOWN_FONDS = [
       partnerNummer: "",
       datum: todayISO(),
       rolle: "",
+      rolleFrei:"",
 
       name: "",
       firma: "",
@@ -662,6 +663,7 @@ const ROLE_DROPDOWN_FONDS = [
           r.plz ??= "";
           r.ort ??= "";
           r.land ??= "DE";
+          r.rolleFrei ??= "";
           r.favorit ??= false;
           r.onlineAbschluss ??= false;
 
@@ -874,7 +876,7 @@ const ROLE_DROPDOWN_FONDS = [
       partner.name,
       r.name, r.firma, r.email, r.mobil, r.telefon,
       r.strasse, r.plz, r.ort, r.land,
-      r.rolle,
+      (r.rolleFrei || r.rolle),
       r.makNummer, r.partnerNummer,
       r.freiesFeld,
       r.wiedervorlageDatum, r.wiedervorlageThema,
@@ -1290,9 +1292,31 @@ const ROLE_DROPDOWN_FONDS = [
     fDatum.el.onchange = () => { rec.datum = fDatum.el.value; touch(rec); renderDashboard(); renderYearTable(); renderRecordSelect(); };
 
     const roleOptions = partner.roleType === "fonds" ? ROLE_DROPDOWN_FONDS : ROLE_DROPDOWN_ACCOUNT;
-    const fRole = selectField({ id:"rolle", label:"Rolle", options: roleOptions, value: rec.rolle || "", span:"w12" });
-    r1.appendChild(fRole.wrap);
-    fRole.sel.onchange = () => { rec.rolle = fRole.sel.value; touch(rec); };
+
+// Dropdown (Standardrollen)
+const fRole = selectField({ id:"rolle", label:"Rolle (Standard)", options: roleOptions, value: rec.rolle || "", span:"w6" });
+r1.appendChild(fRole.wrap);
+fRole.sel.onchange = () => {
+  rec.rolle = fRole.sel.value;
+  touch(rec);
+  renderRecordSelect();
+};
+
+// Freifeld (eigene Rollen)
+const fRoleFree = inputField({
+  id:"rolleFrei",
+  label:"Rolle (frei)",
+  value: rec.rolleFrei || "",
+  placeholder:"eigene Rolle eintragen …",
+  span:"w6"
+});
+r1.appendChild(fRoleFree.wrap);
+fRoleFree.el.oninput = () => {
+  rec.rolleFrei = fRoleFree.el.value;
+  touch(rec);
+  renderRecordSelect();
+};
+
 
     dynamicForm.appendChild(r1);
 
