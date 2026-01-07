@@ -1169,16 +1169,30 @@ const ROLE_DROPDOWN_FONDS = [
     }));
 
     for (const r of ps.records) {
-      if (yearFromISO(r.datum) !== y) continue;
-      const mi = monthIndexFromISO(r.datum);
-      if (mi === null) continue;
-      const b = buckets[mi];
+  if (yearFromISO(r.datum) !== y) continue;
 
-      b.prodVoll += moneyParse(r.prodVoll);     b.zielVoll += moneyParse(r.zielVoll);
-      b.prodBeihilfe += moneyParse(r.prodBeihilfe); b.zielBeihilfe += moneyParse(r.zielBeihilfe);
-      b.prodZusatz += moneyParse(r.prodZusatz); b.zielZusatz += moneyParse(r.zielZusatz);
-      b.prodBkv += moneyParse(r.prodBkv);       b.zielBkv += moneyParse(r.zielBkv);
-    }
+  // Jahreswerte gleichmäßig auf 12 Monate verteilen
+  const mProdVoll = moneyParse(r.prodVoll) / 12;
+  const mZielVoll = moneyParse(r.zielVoll) / 12;
+
+  const mProdBeihilfe = moneyParse(r.prodBeihilfe) / 12;
+  const mZielBeihilfe = moneyParse(r.zielBeihilfe) / 12;
+
+  const mProdZusatz = moneyParse(r.prodZusatz) / 12;
+  const mZielZusatz = moneyParse(r.zielZusatz) / 12;
+
+  const mProdBkv = moneyParse(r.prodBkv) / 12;
+  const mZielBkv = moneyParse(r.zielBkv) / 12;
+
+  for (let mi = 0; mi < 12; mi++) {
+    const b = buckets[mi];
+    b.prodVoll += mProdVoll;           b.zielVoll += mZielVoll;
+    b.prodBeihilfe += mProdBeihilfe;   b.zielBeihilfe += mZielBeihilfe;
+    b.prodZusatz += mProdZusatz;       b.zielZusatz += mZielZusatz;
+    b.prodBkv += mProdBkv;             b.zielBkv += mZielBkv;
+  }
+}
+
     return buckets;
   }
 
