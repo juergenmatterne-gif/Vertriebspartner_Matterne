@@ -26,6 +26,41 @@
       --amber:rgba(245,158,11,.18);
       --red:rgba(244,63,94,.18);
     }
+/* ===============================
+   Stammdaten farblich hervorheben
+   =============================== */
+.stammdatenBox{
+  border: 1px solid color-mix(in srgb, var(--pf-main) 28%, transparent);
+  background: linear-gradient(
+    180deg,
+    var(--pf-soft2),
+    rgba(255,255,255,.92)
+  );
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 22px rgba(11,27,51,.06);
+}
+
+.stammdatenTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 10px;
+}
+
+.stammdatenTitle .tag{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing:.04em;
+  text-transform: uppercase;
+  color: var(--pf-main);
+  background: var(--pf-soft);
+  border: 1px solid color-mix(in srgb, var(--pf-main) 35%, transparent);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
 
     /* Partner-Farben */
     body[data-partner="fonds_finanz"]{ --pf-main:#2563eb; --pf-soft:rgba(37,99,235,.14); --pf-soft2:rgba(37,99,235,.08); }
@@ -1336,9 +1371,31 @@ fRoleFree.el.oninput = () => {
 
     // Row 2: Name/Firma/Email
     const r2 = document.createElement("div"); r2.className = "row";
-    const fName = inputField({ id:"name", label:"Name", value: rec.name || "", placeholder:"Vorname Nachname", span:"w4" });
-    const fFirma = inputField({ id:"firma", label:"Firma", value: rec.firma || "", placeholder:"Unternehmen / Einheit", span:"w4" });
-    const fEmail = inputField({ id:"email", label:"E-Mail", type:"email", value: rec.email || "", placeholder:"name@firma.de", span:"w4" });
+    const fName = inputField({
+  id:"name",
+  label:"Name",
+  value: rec.name || "",
+  placeholder:"Vor- und Nachname",
+  span:"w12"
+});
+
+const fFirma = inputField({
+  id:"firma",
+  label:"Firma",
+  value: rec.firma || "",
+  placeholder:"Firmenname",
+  span:"w12"
+});
+
+const fEmail = inputField({
+  id:"email",
+  label:"E-Mail",
+  type:"email",
+  value: rec.email || "",
+  placeholder:"name@firma.de",
+  span:"w12"
+});
+
     r2.appendChild(fName.wrap); r2.appendChild(fFirma.wrap); r2.appendChild(fEmail.wrap);
     fName.el.oninput = () => { rec.name = fName.el.value; touch(rec); renderRecordSelect(); };
     fFirma.el.oninput = () => { rec.firma = fFirma.el.value; touch(rec); renderRecordSelect(); };
