@@ -26,6 +26,26 @@
       --amber:rgba(245,158,11,.18);
       --red:rgba(244,63,94,.18);
     }
+    /* ===== Jahreswertung kompakter ===== */
+.yearCompact{
+  font-size: 12px;
+}
+
+.yearCompact .card,
+.yearCompact .panel{
+  padding: 10px !important;
+}
+
+.yearCompact .row{
+  gap: 8px !important;
+}
+
+.yearCompact .chip,
+.yearCompact .badge{
+  padding: 3px 8px !important;
+  font-size: 11px !important;
+}
+
 /* ===============================
    Stammdaten farblich hervorheben
    =============================== */
@@ -635,10 +655,20 @@ const ROLE_DROPDOWN_FONDS = [
 
       freiesFeld: "",
 
-      // Wiedervorlage allgemein
-      wiedervorlageDatum: "",
-      wiedervorlageThema: "",
-      wiedervorlageErledigt: false,
+      // ==============================
+// Manuelle Jahresübersicht (Ziel / Ist)
+// ==============================
+gesamtZiel: "", 
+gesamtIst: "",
+
+// Sparten
+vollZiel: "",       vollIst: "",
+beihilfeZiel: "",   beihilfeIst: "",
+zusatzZiel: "",     zusatzIst: "",
+pflegeZiel: "",     pflegeIst: "",
+bkvZiel: "",        bkvIst: "",
+reiseZiel: "",      reiseIst: "",
+
 
       // ✅ Kontakt-Historie (beliebig viele)
       kontakte: [
@@ -701,6 +731,17 @@ const ROLE_DROPDOWN_FONDS = [
           r.rolleFrei ??= "";
           r.favorit ??= false;
           r.onlineAbschluss ??= false;
+          // Migration: Manuelle Jahresübersicht (Ziel / Ist)
+r.gesamtZiel ??= "";
+r.gesamtIst ??= "";
+
+r.vollZiel ??= "";       r.vollIst ??= "";
+r.beihilfeZiel ??= "";   r.beihilfeIst ??= "";
+r.zusatzZiel ??= "";     r.zusatzIst ??= "";
+r.pflegeZiel ??= "";     r.pflegeIst ??= "";
+r.bkvZiel ??= "";        r.bkvIst ??= "";
+r.reiseZiel ??= "";      r.reiseIst ??= "";
+
 
           // Migration: Kontakt-Historie (falls alte Single-Felder existieren)
           if (!Array.isArray(r.kontakte)) {
@@ -799,11 +840,18 @@ const ROLE_DROPDOWN_FONDS = [
 
   // ---------- Record dropdown ----------
   function recordLabel(partner, r, idx){
-    const labelName = (r.name || r.firma || "ohne Name").trim();
-    const labelNr = partner.hasMak ? (r.makNummer || r.partnerNummer || "") : (r.partnerNummer || "");
-    const d = r.datum ? r.datum : "";
-    const fav = r.favorit ? " ★" : "";
-    return `Reiter ${idx+1} — ${labelName}${labelNr ? " ("+labelNr+")" : ""}${d ? " · " + d : ""}${fav}`;
+  const role = ((r.rolleFrei || r.rolle) || "").trim() || "ohne Rolle";
+
+  // MAK nur bei Partnern mit MAK anzeigen (bei Fonds/DEMV)
+  const mak = partner.hasMak ? (r.makNummer || "").trim() : "";
+
+  const fav = r.favorit ? " ★" : "";
+  const makPart = mak ? ` · MAK ${mak}` : "";
+
+  // Nur Rolle + ggf. MAK (kein Datum, keine Partnernummer)
+  return `Reiter ${idx+1} – ${role}${makPart}${fav}`;
+}
+
   }
 
   function renderRecordSelect() {
@@ -1235,6 +1283,7 @@ const ROLE_DROPDOWN_FONDS = [
     const partner = getActivePartner();
     const y = parseInt(yearSelect.value, 10) || currentYear();
     yearPartnerChip.textContent = `${partner.name} · ${y}`;
+    yearPartnerChip.classList.add("yearCompact");
 
     const buckets = monthlyBuckets();
     yearTbody.innerHTML = "";
@@ -1411,19 +1460,59 @@ const fEmail = inputField({
 
     r2.appendChild(fName.wrap); r2.appendChild(fFirma.wrap); r2.appendChild(fEmail.wrap);
     fName.el.oninput = () => { rec.name = fName.el.value; touch(rec); renderRecordSelect(); };
-    fFirma.el.oninput = () => { rec.firma = fFirma.el.value; touch(rec); renderRecordSelect(); };
+    fFirma.el.oninput = () => {
+  rec.firma = fFirma.el.value;
+
+  const filled = applyAddressAutofill(rec);
+
+  touch(rec);
+  renderRecordSelect();
+
+  // Wenn Autofill gegriffen hat → Formular neu rendern
+  if (filled) renderForm();
+};
+
     fEmail.el.oninput = () => { rec.email = fEmail.el.value; touch(rec); };
+    // Row Stammdaten 2: Mobil / Telefon
+const r2b = document.createElement("div"); r2b.className = "row";
+const fMobil2 = inputField({ id:"mobil", label:"Mobil", type:"tel", value: rec.mobil || "", placeholder:"+49 ...", span:"w6" });
+const fTel2   = inputField({ id:"telefon", label:"Telefon", type:"tel", value: rec.telefon || "", placeholder:"z. B. 0711 ...", span:"w6" });
+r2b.appendChild(fMobil2.wrap); r2b.appendChild(fTel2.wrap);
+fMobil2.el.oninput = () => { rec.mobil = fMobil2.el.value; touch(rec); };
+fTel2.el.oninput   = () => { rec.telefon = fTel2.el.value; touch(rec); };
+
+// Row Stammdaten 3: Adresse (kompakt)
+const r2c = document.createElement("div"); r2c.className = "row";
+const fStr2 = inputField({ id:"strasse", label:"Straße", value: rec.strasse || "", placeholder:"Straße + Nr.", span:"w6" });
+const fPlz2 = inputField({ id:"plz", label:"PLZ", value: rec.plz || "", placeholder:"12345", span:"w2" });
+const fOrt2 = inputField({ id:"ort", label:"Ort", value: rec.ort || "", placeholder:"Ort", span:"w4" });
+r2c.appendChild(fStr2.wrap); r2c.appendChild(fPlz2.wrap); r2c.appendChild(fOrt2.wrap);
+fStr2.el.oninput = () => { rec.strasse = fStr2.el.value; touch(rec); };
+fPlz2.el.oninput = () => { rec.plz = fPlz2.el.value; touch(rec); };
+fOrt2.el.oninput = () => { rec.ort = fOrt2.el.value; touch(rec); };
+
     stammdatenBox.appendChild(r2);
+stammdatenBox.appendChild(r2b);
+stammdatenBox.appendChild(r2c);
 dynamicForm.appendChild(stammdatenBox);
 
 
-    // Row 3: Mobil + Telefon (breit) + Optin + Online Abschluss
-    const r3 = document.createElement("div"); r3.className = "row";
-    const fMobil = inputField({ id:"mobil", label:"Mobil", type:"tel", value: rec.mobil || "", placeholder:"+49 …", span:"w6" });
-    const fTelefon = inputField({ id:"telefon", label:"Telefon (Festnetz)", type:"tel", value: rec.telefon || "", placeholder:"z. B. 0711 …", span:"w6" });
-    const fOptin = inputField({ id:"optin", label:"Optin", type:"checkbox", value: !!rec.optin, placeholder:"Einwilligung liegt vor", span:"w6" });
-    const fOnline = inputField({ id:"onlineAbschluss", label:"Online Abschluss", type:"checkbox", value: !!rec.onlineAbschluss, placeholder:"wird / wurde online abgeschlossen", span:"w6" });
-    r3.appendChild(fMobil.wrap); r3.appendChild(fTelefon.wrap); r3.appendChild(fOptin.wrap); r3.appendChild(fOnline.wrap);
+
+    // Row 3: Optin + Online Abschluss (außerhalb Stammdaten)
+const r3 = document.createElement("div"); r3.className = "row";
+
+const fOptin = inputField({ id:"optin", label:"Optin", type:"checkbox", value: !!rec.optin, placeholder:"Einwilligung liegt vor", span:"w6" });
+const fOnline = inputField({ id:"onlineAbschluss", label:"Online Abschluss", type:"checkbox", value: !!rec.onlineAbschluss, placeholder:"wird / wurde online abgeschlossen", span:"w6" });
+
+r3.appendChild(fOptin.wrap);
+r3.appendChild(fOnline.wrap);
+
+fOptin.el.onchange = () => { rec.optin = fOptin.el.checked; touch(rec); };
+fOnline.el.onchange = () => { rec.onlineAbschluss = fOnline.el.checked; touch(rec); renderAmpelAndChips(); };
+
+dynamicForm.appendChild(r3);
+
+
 
     fMobil.el.oninput = () => { rec.mobil = fMobil.el.value; touch(rec); };
     fTelefon.el.oninput = () => { rec.telefon = fTelefon.el.value; touch(rec); };
@@ -1595,22 +1684,50 @@ dynamicForm.appendChild(stammdatenBox);
     dynamicForm.appendChild(fFree.wrap);
     fFree.el.oninput = () => { rec.freiesFeld = fFree.el.value; touch(rec); };
 
-    // Wiedervorlage (allgemein)
-    dynamicForm.appendChild(dividerEl());
-    const hW = document.createElement("h2"); hW.textContent="Wiedervorlage (allgemein)"; dynamicForm.appendChild(hW);
+    
+    // ==============================
+// Jahresübersicht (manuell) Ziel / Ist
+// ==============================
+dynamicForm.appendChild(dividerEl());
+const hY = document.createElement("h2"); 
+hY.textContent = "Jahresübersicht Ziel / Ist (€)";
+dynamicForm.appendChild(hY);
 
-    const rW = document.createElement("div"); rW.className="row";
-    const wDate = inputField({ id:"wiedervorlageDatum", label:"Wiedervorlage Datum", type:"date", value: rec.wiedervorlageDatum || "", span:"w4" });
-    const wDone = inputField({ id:"wiedervorlageErledigt", label:"Erledigt", type:"checkbox", value: !!rec.wiedervorlageErledigt, placeholder:"Wiedervorlage abgeschlossen", span:"w4" });
-    rW.appendChild(wDate.wrap); rW.appendChild(wDone.wrap);
-    dynamicForm.appendChild(rW);
+const rY1 = document.createElement("div"); rY1.className = "row";
+const rY2 = document.createElement("div"); rY2.className = "row";
+const rY3 = document.createElement("div"); rY3.className = "row";
 
-    wDate.el.onchange=()=>{ rec.wiedervorlageDatum=wDate.el.value; touch(rec); renderDashboard(); renderSearchStatsInner(); };
-    wDone.el.onchange=()=>{ rec.wiedervorlageErledigt=wDone.el.checked; touch(rec); renderDashboard(); renderSearchStatsInner(); };
+const mkY = (id,label,val,span) =>
+  inputField({ id, label, value: val || "", placeholder:"€", span, attrs:{ inputmode:"decimal" } });
 
-    const wTopic = inputField({ id:"wiedervorlageThema", label:"Thema / Beschreibung", type:"textarea", value: rec.wiedervorlageThema || "", placeholder:"Worum geht’s? …", span:"w12" });
-    dynamicForm.appendChild(wTopic.wrap);
-    wTopic.el.oninput=()=>{ rec.wiedervorlageThema=wTopic.el.value; touch(rec); renderDashboard(); renderSearchStatsInner(); };
+// Gesamt
+const gy = mkY("gesamtZiel","Gesamt Ziel",rec.gesamtZiel,"w6");
+const gi = mkY("gesamtIst","Gesamt Ist",rec.gesamtIst,"w6");
+rY1.appendChild(gy.wrap); rY1.appendChild(gi.wrap);
+
+// Voll / Beihilfe / Zusatz
+const vz = mkY("vollZiel","Voll Ziel",rec.vollZiel,"w3");
+const vi = mkY("vollIst","Voll Ist",rec.vollIst,"w3");
+const bz = mkY("beihilfeZiel","Beihilfe Ziel",rec.beihilfeZiel,"w3");
+const bi = mkY("beihilfeIst","Beihilfe Ist",rec.beihilfeIst,"w3");
+rY2.appendChild(vz.wrap); rY2.appendChild(vi.wrap); rY2.appendChild(bz.wrap); rY2.appendChild(bi.wrap);
+
+const zz = mkY("zusatzZiel","Zusatz Ziel",rec.zusatzZiel,"w3");
+const zi = mkY("zusatzIst","Zusatz Ist",rec.zusatzIst,"w3");
+const pz = mkY("pflegeZiel","Pflege Ziel",rec.pflegeZiel,"w3");
+const pi = mkY("pflegeIst","Pflege Ist",rec.pflegeIst,"w3");
+rY3.appendChild(zz.wrap); rY3.appendChild(zi.wrap); rY3.appendChild(pz.wrap); rY3.appendChild(pi.wrap);
+
+const rY4 = document.createElement("div"); rY4.className = "row";
+const kz = mkY("bkvZiel","bKV Ziel",rec.bkvZiel,"w3");
+const ki = mkY("bkvIst","bKV Ist",rec.bkvIst,"w3");
+const rz = mkY("reiseZiel","Reise Ziel",rec.reiseZiel,"w3");
+const ri = mkY("reiseIst","Reise Ist",rec.reiseIst,"w3");
+rY4.appendChild(kz.wrap); rY4.appendChild(ki.wrap); rY4.appendChild(rz.wrap); rY4.appendChild(ri.wrap);
+
+dynamicForm.appendChild(rY1);
+dynamicForm.appendChild(rY2);
+dynamicForm.appendChild
 
     // Produktion
     dynamicForm.appendChild(dividerEl());
