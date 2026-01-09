@@ -16,7 +16,7 @@
       --radius:18px;
       --pad:18px;
 
-      /* default theme (falls kein Partner gewählt) */
+      /* default theme */
       --pf-main:#1d4ed8;
       --pf-soft:rgba(29,78,216,.14);
       --pf-soft2:rgba(29,78,216,.08);
@@ -26,7 +26,7 @@
       --bad:rgba(244,63,94,.16);
     }
 
-    /* Partner-Farben (unterschiedlich) */
+    /* Partner-Farben */
     body[data-partner="fonds_finanz"]{ --pf-main:#2563eb; --pf-soft:rgba(37,99,235,.14); --pf-soft2:rgba(37,99,235,.08); }
     body[data-partner="demv"]{        --pf-main:#059669; --pf-soft:rgba(5,150,105,.14);  --pf-soft2:rgba(5,150,105,.08);  }
     body[data-partner="taures"]{      --pf-main:#7c3aed; --pf-soft:rgba(124,58,237,.14); --pf-soft2:rgba(124,58,237,.08); }
@@ -48,9 +48,10 @@
     header{
       padding:18px 22px 10px 22px;
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:space-between;
       gap:12px;
+      flex-wrap:wrap;
     }
     .brand{
       display:flex; align-items:center; gap:10px;
@@ -67,14 +68,11 @@
       font-weight:700;
     }
 
-    .topActions{
-      display:flex; flex-wrap:wrap; gap:8px;
-      align-items:center; justify-content:flex-end;
+    .navRow{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
     }
 
-    button, .btn, select, input, textarea{
-      font:inherit;
-    }
+    button, .btn, select, input, textarea{ font:inherit; }
     button, .btn{
       border:1px solid color-mix(in srgb, var(--pf-main) 25%, var(--line));
       background:var(--panel);
@@ -91,16 +89,21 @@
       color:#fff;
       font-weight:800;
     }
-    button.ghost{
-      background:transparent;
-      box-shadow:none;
-    }
-    button.danger{
-      border-color: rgba(244,63,94,.45);
-      color:#be123c;
+    button.ghost{ background:transparent; box-shadow:none; }
+    button.danger{ border-color: rgba(244,63,94,.45); color:#be123c; }
+    button.activeNav{
+      background: var(--pf-soft2);
+      border-color: color-mix(in srgb, var(--pf-main) 45%, var(--line));
+      color: var(--pf-main);
+      font-weight:900;
     }
     button:active{ transform: translateY(1px); }
     button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    .topActions{
+      display:flex; flex-wrap:wrap; gap:8px;
+      align-items:center; justify-content:flex-end;
+    }
 
     .container{
       display:grid;
@@ -192,10 +195,10 @@
       border:1px solid var(--line);
     }
 
+    /* Stammdaten hervorheben */
     .stammdatenBox{
       border:1px solid color-mix(in srgb, var(--pf-main) 26%, var(--line));
-      background:
-        linear-gradient(180deg, var(--pf-soft2), rgba(255,255,255,.94));
+      background: linear-gradient(180deg, var(--pf-soft2), rgba(255,255,255,.94));
       border-radius:16px;
       padding:14px;
       margin: 8px 0 14px 0;
@@ -217,9 +220,6 @@
       border-radius:999px;
     }
 
-    .inline{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
     .iconBtn{
       display:inline-flex; gap:8px; align-items:center;
       padding:8px 10px;
@@ -266,37 +266,49 @@
     th{ color:var(--muted); font-weight:900; }
     tr:hover td{ background: rgba(0,0,0,.02); }
 
-    .yearCompact{ font-size:12px; }
     .yearCompact th, .yearCompact td{ padding:6px 8px; font-size:12px; }
-    .yearCompact .badge{ padding:5px 8px; font-size:11px; }
-    .yearCompact .chip{ padding:4px 8px; font-size:11px; }
 
-    .no-print{ }
+    .page{ display:none; }
+    .page.active{ display:block; }
+
     @media print{
       header, .no-print{ display:none !important; }
       body{ background:#fff; }
       .container{ grid-template-columns: 1fr; padding:0; }
       .card{ box-shadow:none; border:1px solid #ddd; }
+      .page{ display:block !important; }
     }
   </style>
 </head>
 
 <body data-partner="fonds_finanz">
 <header class="no-print">
-  <div class="brand">
-    Vertriebspartner <span class="pill" id="statusPill">bereit</span>
+  <div style="display:flex; flex-direction:column; gap:10px;">
+    <div class="brand">
+      Vertriebspartner <span class="pill" id="statusPill">bereit</span>
+    </div>
+    <div class="navRow">
+      <button id="navMain" class="activeNav">Hauptansicht</button>
+      <button id="navStats">Produktion & Auswertung</button>
+      <span class="small muted">Die Bereiche „Jahresauswertung (Monat)“ und „Gesamtproduktion (Jahr)“ sind auf der zweiten Seite.</span>
+    </div>
   </div>
 
-  <div class="topActions">
-    <button class="primary" id="btnSaveTop">Speichern</button>
-    <button id="btnPrintTop">Drucken</button>
-    <button id="btnAddCustomFieldTop">Neue Felder erstellen</button>
-    <button class="danger" id="btnDeleteFieldTop">Feld löschen</button>
-    <button id="btnFocusFollowUpsTop">Wiedervorlage</button>
-    <button id="btnFocusVollTop">Vollproduktion</button>
-    <button id="btnFocusBeihilfeTop">Beihilfeproduktion</button>
-    <button id="btnFocusZusatzTop">Zusatzproduktion</button>
-    <button id="btnFocusBkvTop">bKV</button>
+  <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
+    <div class="topActions">
+      <button class="primary" id="btnSaveTop">Speichern</button>
+      <button id="btnPrintTop">Drucken</button>
+      <button id="btnAddCustomFieldTop">Neue Felder erstellen</button>
+      <button class="danger" id="btnDeleteFieldTop">Feld löschen</button>
+      <button id="btnFocusFollowUpsTop">Wiedervorlage</button>
+
+      <!-- Produktions-Shortcuts springen auf die Auswertungs-Seite -->
+      <button id="btnGoStatsTop">Zur Auswertung</button>
+      <button id="btnFocusVollTop">Voll</button>
+      <button id="btnFocusBeihilfeTop">Beihilfe</button>
+      <button id="btnFocusZusatzTop">Zusatz</button>
+      <button id="btnFocusBkvTop">bKV</button>
+    </div>
   </div>
 </header>
 
@@ -304,7 +316,7 @@
   <!-- LEFT -->
   <aside class="card">
     <div class="h2">Partner <span class="badge" id="activePartnerBadge">Fonds Finanz</span></div>
-    <div class="small muted">Breite Felder + Partner-Farben + Favorit + Ampel + Kontakt-Historie + Online-Abschluss.</div>
+    <div class="small muted">Links: Partner/Reiter/Export. Rechts: Hauptansicht oder Produktion & Auswertung.</div>
 
     <div class="partnerTabs no-print" id="partnerTabs"></div>
 
@@ -334,10 +346,6 @@
 
     <div class="divider"></div>
 
-    <div class="inline no-print">
-      <span class="small">Speicherung lokal im Browser (localStorage). Export/Import unten.</span>
-    </div>
-
     <div class="row no-print" style="margin-top:10px">
       <div class="field w6">
         <button class="ghost" id="btnExport">Export (JSON)</button>
@@ -352,12 +360,8 @@
       <div class="field w12">
         <label>Eigene Rollen als Standard hinzufügen (optional)</label>
         <div class="row">
-          <div class="field w6">
-            <input id="roleNewInput" placeholder="z. B. Key Account" />
-          </div>
-          <div class="field w6">
-            <button class="ghost" id="btnAddRole">Rolle hinzufügen</button>
-          </div>
+          <div class="field w6"><input id="roleNewInput" placeholder="z. B. Key Account" /></div>
+          <div class="field w6"><button class="ghost" id="btnAddRole">Rolle hinzufügen</button></div>
         </div>
         <div class="small muted" id="roleCustomInfo"></div>
       </div>
@@ -366,81 +370,92 @@
 
   <!-- RIGHT -->
   <main class="card">
-    <div class="rightTop no-print">
-      <div style="flex:1 1 520px; min-width:320px;">
-        <div class="searchBar">
-          <span class="badge">Suche</span>
-          <input id="q" placeholder="Name, Firma, E-Mail, Mobil/Telefon, Adresse, MAK/Partnernr, Anlass, Notiz, WV …" />
-          <button class="ghost" id="btnClearQ">✕</button>
+    <!-- PAGE: MAIN -->
+    <section class="page active" id="pageMain">
+      <div class="rightTop no-print">
+        <div style="flex:1 1 520px; min-width:320px;">
+          <div class="searchBar">
+            <span class="badge">Suche</span>
+            <input id="q" placeholder="Name, Firma, E-Mail, Mobil/Telefon, Adresse, MAK …, Anlass, Notiz, WV …" />
+            <button class="ghost" id="btnClearQ">✕</button>
+          </div>
+        </div>
+        <div class="filters">
+          <label><input type="checkbox" id="chkAllPartners"> über alle Partner</label>
+          <label><input type="checkbox" id="chkOnlyOpen"> nur offene Wiedervorlagen</label>
         </div>
       </div>
-      <div class="filters">
-        <label><input type="checkbox" id="chkAllPartners"> über alle Partner</label>
-        <label><input type="checkbox" id="chkOnlyOpen"> nur offene Wiedervorlagen</label>
-        <label><input type="checkbox" id="chkOnlyYear"> nur Jahr</label>
+
+      <div class="divider"></div>
+
+      <div class="h2">Übersicht</div>
+      <div class="small muted">Offene Wiedervorlagen stammen aus den Kontakten (Kontakt-Follow-ups).</div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <div class="field w12">
+          <div class="h2" style="margin-bottom:6px;">Offene Wiedervorlagen <span class="badge" id="openCount">0</span></div>
+          <div id="openList" class="small muted">—</div>
+        </div>
       </div>
-    </div>
 
-    <div class="divider"></div>
+      <div class="divider"></div>
 
-    <div class="h2">Übersicht</div>
-    <div class="small muted">Summen (Monatssicht) aus Jahreswerten + offene Wiedervorlagen (aus Kontakt-Follow-ups).</div>
-
-    <div class="divider"></div>
-
-    <div class="row">
-      <div class="field w12">
-        <div class="h2" style="margin-bottom:6px;">Offene Wiedervorlagen <span class="badge" id="openCount">0</span></div>
-        <div id="openList" class="small muted">—</div>
+      <div class="h2">Trefferliste <span class="badge" id="hitBadge">0 Treffer</span></div>
+      <div class="no-print">
+        <button class="ghost" id="btnToggleHits">Trefferliste</button>
+        <div id="hitsCard" class="card" style="margin-top:10px; box-shadow:none; display:none;"></div>
       </div>
-    </div>
 
-    <div class="divider"></div>
+      <div class="divider"></div>
 
-    <div class="row">
-      <div class="field w12">
+      <div class="h2">Bearbeiten</div>
+      <div id="formMain"></div>
+    </section>
+
+    <!-- PAGE: STATS -->
+    <section class="page" id="pageStats">
+      <div class="row" style="align-items:center;">
+        <div class="h2" style="margin:0;">Produktion & Auswertung</div>
+        <span class="badge" id="statsPartnerChip">—</span>
+        <span class="small muted">Hier: „Gesamtproduktion (Jahr) – Ziel & Ist“ und „Jahresauswertung (Monat)“.</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row no-print" style="margin-bottom:8px; align-items:center;">
+        <div class="field w6">
+          <label>Jahr (Filter für Auswertung & offene WV)</label>
+          <select id="yearSelect"></select>
+        </div>
+        <div class="field w6" style="display:flex; gap:8px; flex-direction:row; align-items:flex-end; justify-content:flex-end;">
+          <button class="ghost" id="btnYearCsv">CSV Export</button>
+          <button class="ghost" id="btnYearPrint">Drucken</button>
+        </div>
+      </div>
+
+      <div class="card" style="box-shadow:none; border-radius:16px;">
         <div class="h2" style="margin-bottom:8px;">Jahresauswertung (Monat)</div>
-        <div class="row no-print" style="margin-bottom:8px; align-items:center;">
-          <div class="field w6">
-            <label>Jahr</label>
-            <select id="yearSelect"></select>
-          </div>
-          <div class="field w6" style="display:flex; gap:8px; flex-direction:row; align-items:flex-end; justify-content:flex-end;">
-            <button class="ghost" id="btnYearCsv">CSV Export</button>
-            <button class="ghost" id="btnYearPrint">Drucken</button>
-          </div>
-        </div>
-
-        <div class="yearCompact" id="yearWrap">
+        <div class="yearCompact">
           <table id="yearTable"></table>
           <div class="small muted" style="margin-top:8px;">
-            Logik: Jahreswerte (Produktion/Ziele) werden gleichmäßig auf 12 Monate verteilt und dann pro Monat summiert.
+            Logik: Jahreswerte (Produktion/Ziele) werden gleichmäßig auf 12 Monate verteilt und pro Monat summiert.
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="divider"></div>
+      <div class="divider"></div>
 
-    <div class="h2">Trefferliste <span class="badge" id="hitBadge">0 Treffer</span></div>
-    <div class="no-print">
-      <button class="ghost" id="btnToggleHits">Trefferliste</button>
-      <div id="hitsCard" class="card" style="margin-top:10px; box-shadow:none; display:none;"></div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="h2">Bearbeiten</div>
-    <div id="form"></div>
+      <div class="h2">Bearbeiten (Produktion)</div>
+      <div id="formStats"></div>
+    </section>
   </main>
 </div>
 
 <script>
 (() => {
-  // ===============================
-  // Config
-  // ===============================
-  const STORAGE_KEY = "vp_db_v1";
+  const STORAGE_KEY = "vp_db_v2_pages";
 
   const PARTNERS = [
     { key:"fonds_finanz", name:"Fonds Finanz", hasMak:true, roleType:"fonds" },
@@ -464,7 +479,7 @@
   ];
   const ROLE_DROPDOWN_ACCOUNT = ["Account","Leiter","Bereichsleiter"];
 
-  // Address AutoFill (Firma -> Adresse)
+  // AutoFill-Adressdaten (Firma -> Adresse)
   const ADDRESS_BOOK = {
     "Fonds Finanz Maklerservice GmbH": {
       strasse: "Riesstraße 25",
@@ -475,15 +490,9 @@
     }
   };
 
-  // ===============================
-  // Helpers
-  // ===============================
   const $ = (id) => document.getElementById(id);
   const uid = () => Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
-
-  function safeJSONParse(s, fallback){
-    try { return JSON.parse(s); } catch { return fallback; }
-  }
+  const safeJSONParse = (s,fallback)=>{ try{return JSON.parse(s);}catch{return fallback;} };
 
   function todayISO(){
     const d = new Date();
@@ -496,14 +505,6 @@
     const m = iso.match(/^(\d{4})-/);
     return m ? parseInt(m[1],10) : null;
   }
-  function monthIndexFromISO(iso){
-    if(!iso || typeof iso !== "string") return null;
-    const m = iso.match(/^\d{4}-(\d{2})-/);
-    if(!m) return null;
-    const mm = parseInt(m[1],10);
-    if(!(mm>=1 && mm<=12)) return null;
-    return mm-1;
-  }
   function moneyParse(v){
     if(v === null || v === undefined) return 0;
     const s = String(v).replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,"").trim();
@@ -514,9 +515,10 @@
     const v = Number.isFinite(n) ? n : 0;
     return v.toLocaleString("de-DE", { minimumFractionDigits:0, maximumFractionDigits:0 });
   }
-  function copyToClipboard(text){
-    if(!text) return;
-    navigator.clipboard?.writeText(text).catch(()=>{});
+  function escapeHtml(s){
+    return String(s ?? "").replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
   }
 
   function applyAddressAutofill(rec){
@@ -531,63 +533,57 @@
     return true;
   }
 
-  // ===============================
-  // DB
-  // ===============================
   function baseRecord(partner){
     const rec = {
       id: uid(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
 
-      favorit: false,
-      onlineAbschluss: false,
+      favorit:false,
+      onlineAbschluss:false,
+      optin:false,
 
-      makNummer: "",
-      partnerNummer: "",
+      makNummer:"",
+      partnerNummer:"",
       datum: todayISO(),
 
-      rolle: "",
-      rolleFrei: "",
+      rolle:"",
+      rolleFrei:"",
 
-      name: "",
-      firma: "",
-      email: "",
-      mobil: "",
-      telefon: "",
+      name:"",
+      firma:"",
+      email:"",
+      mobil:"",
+      telefon:"",
+      strasse:"",
+      plz:"",
+      ort:"",
+      land:"DE",
 
-      strasse: "",
-      plz: "",
-      ort: "",
-      land: "DE",
+      // Jahreswerte (für Monatsübersicht /12)
+      prodVoll:"", zielVoll:"",
+      prodBeihilfe:"", zielBeihilfe:"",
+      prodZusatz:"", zielZusatz:"",
+      prodBkv:"", zielBkv:"",
 
-      optin: false,
+      // Manuelle Jahresübersicht Ziel/Ist
+      gesamtZiel:"", gesamtIst:"",
+      vollZiel:"", vollIst:"",
+      beihilfeZiel:"", beihilfeIst:"",
+      zusatzZiel:"", zusatzIst:"",
+      pflegeZiel:"", pflegeIst:"",
+      bkvZiel:"", bkvIst:"",
+      reiseZiel:"", reiseIst:"",
 
-      // Produktion/Ziele (Jahreswerte – werden in Monatsübersicht gleichmäßig verteilt)
-      prodVoll: "",  zielVoll: "",
-      prodBeihilfe: "", zielBeihilfe: "",
-      prodZusatz: "", zielZusatz: "",
-      prodBkv: "", zielBkv: "",
+      freiesFeld:"",
 
-      // Manuelle Jahresübersicht (Ziel/Ist)
-      gesamtZiel: "", gesamtIst: "",
-      vollZiel: "", vollIst: "",
-      beihilfeZiel: "", beihilfeIst: "",
-      zusatzZiel: "", zusatzIst: "",
-      pflegeZiel: "", pflegeIst: "",
-      bkvZiel: "", bkvIst: "",
-      reiseZiel: "", reiseIst: "",
-
-      freiesFeld: "",
-
-      // Kontakt-Historie: beliebig viele
+      // Kontakte inkl. Wiedervorlage
       kontakte: [
         { id: uid(), datum: todayISO(), anlass:"", notiz:"", followUpDatum:"", followUpThema:"", followUpErledigt:false }
       ],
 
       custom: {}
     };
-
     if(!partner.hasMak) rec.makNummer = undefined;
     return rec;
   }
@@ -604,13 +600,13 @@
       partners[p.key].activeRecordId = partners[p.key].records[0].id;
     }
     return {
-      version: 1,
+      version: 2,
       ui: {
+        page: "main",                 // "main" oder "stats"
         activePartnerKey: PARTNERS[0].key,
         q: "",
         allPartners: false,
         onlyOpen: false,
-        onlyYear: false,
         year: currentYear()
       },
       partners
@@ -623,7 +619,14 @@
     const raw = localStorage.getItem(STORAGE_KEY);
     db = raw ? safeJSONParse(raw, defaultState()) : defaultState();
 
-    // Migration safety: ensure partner containers exist
+    db.ui ||= {};
+    db.ui.page ||= "main";
+    db.ui.activePartnerKey ||= PARTNERS[0].key;
+    db.ui.q ||= "";
+    db.ui.allPartners ||= false;
+    db.ui.onlyOpen ||= false;
+    db.ui.year ||= currentYear();
+
     for(const p of PARTNERS){
       if(!db.partners[p.key]) db.partners[p.key] = { customFields:[], roleCustom:[], records:[], activeRecordId:null };
       const ps = db.partners[p.key];
@@ -633,7 +636,6 @@
       if(ps.records.length === 0) ps.records.push(baseRecord(p));
       if(!ps.activeRecordId) ps.activeRecordId = ps.records[0].id;
 
-      // Ensure fields exist
       for(const r of ps.records){
         r.custom ||= {};
         r.kontakte ||= [];
@@ -641,12 +643,8 @@
           r.kontakte = [{ id: uid(), datum: todayISO(), anlass:"", notiz:"", followUpDatum:"", followUpThema:"", followUpErledigt:false }];
         }
         r.updatedAt ||= r.createdAt || new Date().toISOString();
-        r.telefon ??= "";
-        r.mobil ??= "";
-        r.strasse ??= "";
-        r.plz ??= "";
-        r.ort ??= "";
-        r.land ??= "DE";
+        r.telefon ??= ""; r.mobil ??= "";
+        r.strasse ??= ""; r.plz ??= ""; r.ort ??= ""; r.land ??= "DE";
         r.rolleFrei ??= "";
         r.favorit ??= false;
         r.onlineAbschluss ??= false;
@@ -670,40 +668,40 @@
         r.datum ??= todayISO();
       }
     }
-
-    db.ui ||= {};
-    db.ui.activePartnerKey ||= PARTNERS[0].key;
-    db.ui.q ||= "";
-    db.ui.allPartners ||= false;
-    db.ui.onlyOpen ||= false;
-    db.ui.onlyYear ||= false;
-    db.ui.year ||= currentYear();
   }
 
-  function saveDB(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-  }
+  function saveDB(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
+  function setStatus(text){ $("statusPill").textContent = text; }
 
-  function setStatus(text){
-    $("statusPill").textContent = text;
-  }
-
+  // robust: bei jeder Eingabe speichern
   function touch(rec){
     rec.updatedAt = new Date().toISOString();
-    saveDB(); // robust: immer speichern, damit nichts verloren geht
+    saveDB();
     setStatus("gespeichert");
-    setTimeout(()=> setStatus("bereit"), 800);
+    setTimeout(()=> setStatus("bereit"), 650);
   }
 
-  // ===============================
-  // Active selectors
-  // ===============================
+  function navTo(page){
+    db.ui.page = page;
+    saveDB();
+    renderPages();
+    // URL-Hash als Hilfe (optional)
+    location.hash = page === "stats" ? "#stats" : "#main";
+  }
+
+  function renderPages(){
+    const isStats = db.ui.page === "stats";
+    $("pageMain").classList.toggle("active", !isStats);
+    $("pageStats").classList.toggle("active", isStats);
+    $("navMain").classList.toggle("activeNav", !isStats);
+    $("navStats").classList.toggle("activeNav", isStats);
+    $("statsPartnerChip").textContent = getActivePartner().name + " · " + (db.ui.year || currentYear());
+  }
+
   function getActivePartner(){
     return PARTNERS.find(p => p.key === db.ui.activePartnerKey) || PARTNERS[0];
   }
-  function getPartnerState(key){
-    return db.partners[key];
-  }
+  function getPartnerState(key){ return db.partners[key]; }
   function getActiveRecord(){
     const p = getActivePartner();
     const ps = getPartnerState(p.key);
@@ -712,34 +710,24 @@
     return r;
   }
 
-  // ===============================
-  // UI builders
-  // ===============================
   function inputField({ id, label, type="text", value="", placeholder="", span="w4", attrs={} }){
     const wrap = document.createElement("div");
     wrap.className = `field ${span}`;
-
     const lab = document.createElement("label");
     lab.textContent = label;
     lab.htmlFor = id;
 
     let el;
-    if(type === "textarea"){
-      el = document.createElement("textarea");
-    }else{
-      el = document.createElement("input");
-      el.type = type;
-    }
+    if(type === "textarea"){ el = document.createElement("textarea"); }
+    else { el = document.createElement("input"); el.type = type; }
+
     el.id = id;
     el.placeholder = placeholder;
     el.value = value ?? "";
-    for(const [k,v] of Object.entries(attrs || {})){
-      el.setAttribute(k, v);
-    }
+    for(const [k,v] of Object.entries(attrs || {})){ el.setAttribute(k, v); }
 
     wrap.appendChild(lab);
     wrap.appendChild(el);
-
     return { wrap, el };
   }
 
@@ -770,7 +758,6 @@
   function selectField({ id, label, options=[], value="", span="w4" }){
     const wrap = document.createElement("div");
     wrap.className = `field ${span}`;
-
     const lab = document.createElement("label");
     lab.textContent = label;
     lab.htmlFor = id;
@@ -796,9 +783,12 @@
     return { wrap, sel };
   }
 
-  // ===============================
-  // Record label (Reiter)
-  // ===============================
+  function dividerEl(){
+    const d = document.createElement("div");
+    d.className = "divider";
+    return d;
+  }
+
   function recordLabel(partner, r, idx){
     const role = ((r.rolleFrei || r.rolle) || "").trim() || "ohne Rolle";
     const mak = partner.hasMak ? (r.makNummer || "").trim() : "";
@@ -807,9 +797,6 @@
     return `Reiter ${idx+1} – ${role}${makPart}${fav}`;
   }
 
-  // ===============================
-  // Search
-  // ===============================
   function normalize(s){ return (s ?? "").toString().toLowerCase().trim(); }
 
   function recordSearchText(partner, r){
@@ -852,13 +839,10 @@
     return hits;
   }
 
-  // ===============================
-  // Monthly buckets (from Jahreswerte gleichmäßig /12)
-  // ===============================
   function monthlyBuckets(){
     const p = getActivePartner();
     const ps = getPartnerState(p.key);
-    const y = parseInt($("yearSelect").value,10) || currentYear();
+    const y = parseInt(db.ui.year,10) || currentYear();
 
     const buckets = Array.from({length:12}, () => ({
       prodVoll:0, zielVoll:0,
@@ -870,7 +854,6 @@
     for(const r of ps.records){
       if(yearFromISO(r.datum) !== y) continue;
 
-      // Jahreswerte /12 verteilen
       const mProdVoll = moneyParse(r.prodVoll)/12;
       const mZielVoll = moneyParse(r.zielVoll)/12;
 
@@ -961,33 +944,28 @@
     table.appendChild(tbody);
   }
 
-  // ===============================
-  // Dashboard: open followups + ampel
-  // ===============================
   function getOpenFollowups(){
     const out = [];
+    const y = parseInt(db.ui.year,10) || currentYear();
     const partnersToSearch = db.ui.allPartners ? PARTNERS : [getActivePartner()];
+
     for(const p of partnersToSearch){
       const ps = getPartnerState(p.key);
       for(const r of ps.records){
         for(const k of (r.kontakte || [])){
           if(k.followUpDatum && !k.followUpErledigt){
-            if(db.ui.onlyYear){
-              const y = parseInt($("yearSelect").value,10) || currentYear();
-              if(yearFromISO(k.followUpDatum) !== y) continue;
-            }
+            // Jahrfilter (auf der Stats-Seite gewählt, aber gilt auch für Übersicht)
+            if(yearFromISO(k.followUpDatum) !== y) continue;
             out.push({ partner:p, record:r, kontakt:k });
           }
         }
       }
     }
-    // sort by followUpDate
     out.sort((a,b)=> String(a.kontakt.followUpDatum).localeCompare(String(b.kontakt.followUpDatum)));
     return out;
   }
 
   function computeAmpel(rec){
-    // simple: based on Gesamt Ist vs Gesamt Ziel if filled, else based on Monats % (from prod/ziele)
     const ziel = moneyParse(rec.gesamtZiel);
     const ist = moneyParse(rec.gesamtIst);
     if(ziel > 0){
@@ -1012,7 +990,7 @@
     $("openCount").textContent = open.length;
 
     if(open.length === 0){
-      $("openList").innerHTML = "<span class='muted'>— keine offenen Wiedervorlagen</span>";
+      $("openList").innerHTML = "<span class='muted'>— keine offenen Wiedervorlagen (im Jahrfilter)</span>";
     }else{
       const lines = open.slice(0,10).map(o => {
         const role = ((o.record.rolleFrei || o.record.rolle) || "ohne Rolle").trim();
@@ -1020,7 +998,7 @@
         const when = o.kontakt.followUpDatum;
         const what = o.kontakt.followUpThema || o.kontakt.anlass || "—";
         return `<div style="margin:4px 0;">
-          <strong>${when}</strong> · <span style="color:var(--pf-main); font-weight:900;">${o.partner.name}</span> · ${role} · ${escapeHtml(who)}
+          <strong>${escapeHtml(when)}</strong> · <span style="color:var(--pf-main); font-weight:900;">${escapeHtml(o.partner.name)}</span> · ${escapeHtml(role)} · ${escapeHtml(who)}
           <div class="small muted">${escapeHtml(what)}</div>
         </div>`;
       }).join("");
@@ -1028,11 +1006,11 @@
       $("openList").innerHTML = lines + more;
     }
 
-    // left chips
     const rec = getActiveRecord();
     $("favText").textContent = rec.favorit ? "Ja" : "Nein";
     const am = computeAmpel(rec);
     $("ampelText").textContent = am;
+
     const chipA = $("chipAmpel");
     chipA.classList.remove("ok","warn","bad");
     if(am==="grün") chipA.classList.add("ok");
@@ -1040,15 +1018,6 @@
     if(am==="rot") chipA.classList.add("bad");
   }
 
-  function escapeHtml(s){
-    return String(s ?? "").replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[m]));
-  }
-
-  // ===============================
-  // Render: partner tabs + record select + form
-  // ===============================
   function renderPartnerTabs(){
     const wrap = $("partnerTabs");
     wrap.innerHTML = "";
@@ -1141,17 +1110,42 @@
     });
     tbl.appendChild(tbody);
     card.appendChild(tbl);
-
-    if(hits.length > 100){
-      const info = document.createElement("div");
-      info.className = "small muted";
-      info.style.marginTop = "8px";
-      info.textContent = `Hinweis: Anzeige auf 100 Treffer begrenzt (insgesamt ${hits.length}).`;
-      card.appendChild(info);
-    }
   }
 
-  function renderForm(){
+  function wireQuickActions(rec){
+    $("chipFavorite").onclick = () => {
+      rec.favorit = !rec.favorit;
+      touch(rec);
+      renderRecordSelect();
+      renderDashboard();
+    };
+
+    $("btnCopyAddress").onclick = () => {
+      const addr = [rec.firma, rec.strasse, `${rec.plz} ${rec.ort}`.trim()].filter(Boolean).join("\n");
+      navigator.clipboard?.writeText(addr).catch(()=>{});
+      setStatus("Adresse kopiert");
+      setTimeout(()=>setStatus("bereit"),600);
+    };
+    $("btnCopyPhone").onclick = () => {
+      const s = [rec.telefon ? ("Tel: " + rec.telefon) : "", rec.mobil ? ("Mobil: " + rec.mobil) : ""].filter(Boolean).join("\n");
+      navigator.clipboard?.writeText(s).catch(()=>{});
+      setStatus("Telefon kopiert");
+      setTimeout(()=>setStatus("bereit"),600);
+    };
+    $("btnCall").onclick = () => {
+      const num = (rec.mobil || rec.telefon || "").trim();
+      if(!num) return alert("Keine Telefonnummer vorhanden.");
+      window.location.href = `tel:${num.replace(/\s+/g,"")}`;
+    };
+    $("btnMail").onclick = () => {
+      const mail = (rec.email || "").trim();
+      if(!mail) return alert("Keine E-Mail vorhanden.");
+      window.location.href = `mailto:${mail}`;
+    };
+  }
+
+  // ---------------- MAIN FORM (ohne Produktion/Auswertung) ----------------
+  function renderFormMain(){
     const partner = getActivePartner();
     const ps = getPartnerState(partner.key);
     const rec = getActiveRecord();
@@ -1159,51 +1153,43 @@
     document.body.setAttribute("data-partner", partner.key);
     $("activePartnerBadge").textContent = partner.name;
 
-    const form = $("form");
+    const form = $("formMain");
     form.innerHTML = "";
 
-    // Row: role + mak (instead of date/partner shown as primary)
+    // Rolle + Rolle frei
     const r1 = document.createElement("div"); r1.className = "row";
-
-    const roleOptionsBase = (partner.roleType === "fonds") ? ROLE_DROPDOWN_FONDS : ROLE_DROPDOWN_ACCOUNT;
-    const roleOptions = [...roleOptionsBase, ...(ps.roleCustom || [])];
+    const base = (partner.roleType === "fonds") ? ROLE_DROPDOWN_FONDS : ROLE_DROPDOWN_ACCOUNT;
+    const roleOptions = [...base, ...(ps.roleCustom || [])];
 
     const fRole = selectField({ id:"rolle", label:"Rolle (Standard)", options: roleOptions, value: rec.rolle || "", span:"w6" });
-    r1.appendChild(fRole.wrap);
-
     const fRoleFree = inputField({ id:"rolleFrei", label:"Rolle (frei)", value: rec.rolleFrei || "", placeholder:"eigene Rolle eintragen …", span:"w6" });
-    r1.appendChild(fRoleFree.wrap);
-
+    r1.appendChild(fRole.wrap); r1.appendChild(fRoleFree.wrap);
     fRole.sel.onchange = () => { rec.rolle = fRole.sel.value; touch(rec); renderRecordSelect(); renderDashboard(); };
     fRoleFree.el.oninput = () => { rec.rolleFrei = fRoleFree.el.value; touch(rec); renderRecordSelect(); renderDashboard(); };
-
     form.appendChild(r1);
 
+    // MAK + Datum
     const r1b = document.createElement("div"); r1b.className = "row";
     if(partner.hasMak){
       const fMak = inputField({ id:"makNummer", label:"MAK-Nummer", value: rec.makNummer || "", placeholder:"MAK …", span:"w6" });
       r1b.appendChild(fMak.wrap);
       fMak.el.oninput = () => { rec.makNummer = fMak.el.value; touch(rec); renderRecordSelect(); };
     }else{
-      const spacer = document.createElement("div");
-      spacer.className = "field w6";
+      const spacer = document.createElement("div"); spacer.className = "field w6";
       r1b.appendChild(spacer);
     }
-
     const fDatum = inputField({ id:"datum", label:"Datum (für Jahres-/Monatslogik)", type:"date", value: rec.datum || todayISO(), span:"w6" });
     r1b.appendChild(fDatum.wrap);
     fDatum.el.onchange = () => { rec.datum = fDatum.el.value; touch(rec); renderYearTable(); renderDashboard(); };
-
     form.appendChild(r1b);
 
-    // Stammdaten (breit, kopierbar)
+    // Stammdaten
     const stammdatenBox = document.createElement("div");
     stammdatenBox.className = "stammdatenBox";
-
-    const title = document.createElement("div");
-    title.className = "stammdatenTitle";
-    title.innerHTML = `<div class="tag">Stammdaten</div><div class="small muted">Name · Firma · E-Mail · Mobil/Telefon · Adresse</div>`;
-    stammdatenBox.appendChild(title);
+    const t = document.createElement("div");
+    t.className = "stammdatenTitle";
+    t.innerHTML = `<div class="tag">Stammdaten</div><div class="small muted">Name · Firma · E-Mail · Mobil/Telefon · Adresse</div>`;
+    stammdatenBox.appendChild(t);
 
     const r2 = document.createElement("div"); r2.className = "row";
     const fName = inputField({ id:"name", label:"Name", value: rec.name || "", placeholder:"Vor- und Nachname", span:"w12" });
@@ -1216,7 +1202,7 @@
       const filled = applyAddressAutofill(rec);
       touch(rec);
       renderRecordSelect();
-      if(filled) renderForm(); // refresh to show autofilled fields
+      if(filled) renderFormMain();
     };
     fEmail.el.oninput = () => { rec.email = fEmail.el.value; touch(rec); };
     stammdatenBox.appendChild(r2);
@@ -1241,12 +1227,11 @@
 
     form.appendChild(stammdatenBox);
 
-    // Optin + Online Abschluss (außerhalb Stammdaten)
+    // Optin + Online Abschluss
     const r3 = document.createElement("div"); r3.className = "row";
     const fOptin = checkboxField({ id:"optin", label:"Optin (Einwilligung liegt vor)", checked: !!rec.optin, span:"w6" });
     const fOnline = checkboxField({ id:"onlineAbschluss", label:"Online Abschluss", checked: !!rec.onlineAbschluss, span:"w6" });
-    r3.appendChild(fOptin.wrap);
-    r3.appendChild(fOnline.wrap);
+    r3.appendChild(fOptin.wrap); r3.appendChild(fOnline.wrap);
     fOptin.el.onchange = () => { rec.optin = fOptin.el.checked; touch(rec); };
     fOnline.el.onchange = () => { rec.onlineAbschluss = fOnline.el.checked; touch(rec); renderDashboard(); };
     form.appendChild(r3);
@@ -1267,92 +1252,9 @@
     fFree.el.oninput = () => { rec.freiesFeld = fFree.el.value; touch(rec); };
     form.appendChild(rFree);
 
-    // Jahresübersicht (manuell) Ziel/Ist
+    // Kontakte + Wiedervorlage
     form.appendChild(dividerEl());
-    const hY = document.createElement("div");
-    hY.className = "h2";
-    hY.textContent = "Gesamtproduktion (Jahr) – Ziel & Ist (€)";
-    form.appendChild(hY);
-
-    const mkY = (id,label,val,span="w3") =>
-      inputField({ id, label, value: val || "", placeholder:"€", span, attrs:{ inputmode:"decimal" } });
-
-    const y1 = document.createElement("div"); y1.className = "row";
-    const gZ = mkY("gesamtZiel","Gesamt Ziel",rec.gesamtZiel,"w6");
-    const gI = mkY("gesamtIst","Gesamt Ist",rec.gesamtIst,"w6");
-    y1.appendChild(gZ.wrap); y1.appendChild(gI.wrap);
-    form.appendChild(y1);
-
-    const y2 = document.createElement("div"); y2.className = "row";
-    const vZ = mkY("vollZiel","Voll Ziel",rec.vollZiel);
-    const vI = mkY("vollIst","Voll Ist",rec.vollIst);
-    const bZ = mkY("beihilfeZiel","Beihilfe Ziel",rec.beihilfeZiel);
-    const bI = mkY("beihilfeIst","Beihilfe Ist",rec.beihilfeIst);
-    y2.appendChild(vZ.wrap); y2.appendChild(vI.wrap); y2.appendChild(bZ.wrap); y2.appendChild(bI.wrap);
-    form.appendChild(y2);
-
-    const y3 = document.createElement("div"); y3.className = "row";
-    const zZ = mkY("zusatzZiel","Zusatz Ziel",rec.zusatzZiel);
-    const zI = mkY("zusatzIst","Zusatz Ist",rec.zusatzIst);
-    const pZ = mkY("pflegeZiel","Pflege Ziel",rec.pflegeZiel);
-    const pI = mkY("pflegeIst","Pflege Ist",rec.pflegeIst);
-    y3.appendChild(zZ.wrap); y3.appendChild(zI.wrap); y3.appendChild(pZ.wrap); y3.appendChild(pI.wrap);
-    form.appendChild(y3);
-
-    const y4 = document.createElement("div"); y4.className = "row";
-    const kZ = mkY("bkvZiel","bKV Ziel",rec.bkvZiel);
-    const kI = mkY("bkvIst","bKV Ist",rec.bkvIst);
-    const rZ = mkY("reiseZiel","Reise Ziel",rec.reiseZiel);
-    const rI = mkY("reiseIst","Reise Ist",rec.reiseIst);
-    y4.appendChild(kZ.wrap); y4.appendChild(kI.wrap); y4.appendChild(rZ.wrap); y4.appendChild(rI.wrap);
-    form.appendChild(y4);
-
-    function onYearManual(){
-      touch(rec);
-      renderDashboard();
-    }
-    [gZ,gI,vZ,vI,bZ,bI,zZ,zI,pZ,pI,kZ,kI,rZ,rI].forEach(f=>{
-      f.el.oninput = () => { rec[f.el.id] = f.el.value; onYearManual(); };
-    });
-
-    // Produktion & Ziele (Jahreswerte für Monatsübersicht)
-    form.appendChild(dividerEl());
-    const hP = document.createElement("div");
-    hP.className = "h2";
-    hP.textContent = "Produktion & Ziele (Jahreswerte → Monatsübersicht)";
-    form.appendChild(hP);
-
-    const rP = document.createElement("div"); rP.className = "row";
-    const pv = inputField({ id:"prodVoll", label:"Produktion Voll", value: rec.prodVoll || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    const zv = inputField({ id:"zielVoll", label:"Ziel Voll", value: rec.zielVoll || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    const pb = inputField({ id:"prodBeihilfe", label:"Produktion Beihilfe", value: rec.prodBeihilfe || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    const zb = inputField({ id:"zielBeihilfe", label:"Ziel Beihilfe", value: rec.zielBeihilfe || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    const pz = inputField({ id:"prodZusatz", label:"Produktion Zusatz", value: rec.prodZusatz || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    const zz = inputField({ id:"zielZusatz", label:"Ziel Zusatz", value: rec.zielZusatz || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    const pk = inputField({ id:"prodBkv", label:"Produktion bKV", value: rec.prodBkv || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    const zk = inputField({ id:"zielBkv", label:"Ziel bKV", value: rec.zielBkv || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
-    [pv,zv,pb,zb,pz,zz,pk,zk].forEach(x => rP.appendChild(x.wrap));
-    form.appendChild(rP);
-
-    function onMoney(){
-      touch(rec);
-      renderDashboard();
-      renderYearTable();
-      renderRecordSelect();
-    }
-    pv.el.oninput=()=>{ rec.prodVoll=pv.el.value; onMoney(); };
-    zv.el.oninput=()=>{ rec.zielVoll=zv.el.value; onMoney(); };
-    pb.el.oninput=()=>{ rec.prodBeihilfe=pb.el.value; onMoney(); };
-    zb.el.oninput=()=>{ rec.zielBeihilfe=zb.el.value; onMoney(); };
-    pz.el.oninput=()=>{ rec.prodZusatz=pz.el.value; onMoney(); };
-    zz.el.oninput=()=>{ rec.zielZusatz=zz.el.value; onMoney(); };
-    pk.el.oninput=()=>{ rec.prodBkv=pk.el.value; onMoney(); };
-    zk.el.oninput=()=>{ rec.zielBkv=zk.el.value; onMoney(); };
-
-    // Kontakte + Wiedervorlagen (je Kontakt)
-    form.appendChild(dividerEl());
-    const hK = document.createElement("div");
-    hK.className = "h2";
+    const hK = document.createElement("div"); hK.className = "h2";
     hK.textContent = "Kontakt 1 und fortlaufend (inkl. Wiedervorlage / Follow-up)";
     form.appendChild(hK);
 
@@ -1428,23 +1330,21 @@
     form.appendChild(kWrap);
     form.appendChild(addK);
 
-    // Zusatzfelder (Custom)
+    // Custom fields
     if(ps.customFields.length){
       form.appendChild(dividerEl());
-      const hc = document.createElement("div");
-      hc.className = "h2";
+      const hc = document.createElement("div"); hc.className = "h2";
       hc.textContent = "Zusatzfelder (Custom)";
       form.appendChild(hc);
 
       const rc = document.createElement("div"); rc.className = "row";
       for(const cf of ps.customFields){
         const id = "cf_" + cf.id;
-        const type = cf.type;
         let f;
-        if(type === "checkbox"){
+        if(cf.type === "checkbox"){
           f = checkboxField({ id, label: cf.label, checked: !!rec.custom[cf.id], span:"w3" });
           f.el.onchange = () => { rec.custom[cf.id] = f.el.checked; touch(rec); };
-        }else if(type === "textarea"){
+        }else if(cf.type === "textarea"){
           f = inputField({ id, label: cf.label, type:"textarea", value: rec.custom[cf.id] || "", span:"w12" });
           f.el.oninput = () => { rec.custom[cf.id] = f.el.value; touch(rec); };
         }else{
@@ -1456,51 +1356,92 @@
       form.appendChild(rc);
     }
 
-    // update chips buttons (call/mail/copy)
     wireQuickActions(rec);
   }
 
-  function dividerEl(){
-    const d = document.createElement("div");
-    d.className = "divider";
-    return d;
+  // ---------------- STATS FORM (nur Produktion/Auswertung) ----------------
+  function renderFormStats(){
+    const partner = getActivePartner();
+    const rec = getActiveRecord();
+
+    const form = $("formStats");
+    form.innerHTML = "";
+
+    // Manuelle Jahresübersicht (Ziel/Ist)
+    const hY = document.createElement("div"); hY.className = "h2";
+    hY.textContent = "Gesamtproduktion (Jahr) – Ziel & Ist (€)";
+    form.appendChild(hY);
+
+    const mkY = (id,label,val,span="w3") =>
+      inputField({ id, label, value: val || "", placeholder:"€", span, attrs:{ inputmode:"decimal" } });
+
+    const y1 = document.createElement("div"); y1.className = "row";
+    const gZ = mkY("gesamtZiel","Gesamt Ziel",rec.gesamtZiel,"w6");
+    const gI = mkY("gesamtIst","Gesamt Ist",rec.gesamtIst,"w6");
+    y1.appendChild(gZ.wrap); y1.appendChild(gI.wrap);
+    form.appendChild(y1);
+
+    const y2 = document.createElement("div"); y2.className = "row";
+    const vZ = mkY("vollZiel","Voll Ziel",rec.vollZiel);
+    const vI = mkY("vollIst","Voll Ist",rec.vollIst);
+    const bZ = mkY("beihilfeZiel","Beihilfe Ziel",rec.beihilfeZiel);
+    const bI = mkY("beihilfeIst","Beihilfe Ist",rec.beihilfeIst);
+    y2.appendChild(vZ.wrap); y2.appendChild(vI.wrap); y2.appendChild(bZ.wrap); y2.appendChild(bI.wrap);
+    form.appendChild(y2);
+
+    const y3 = document.createElement("div"); y3.className = "row";
+    const zZ = mkY("zusatzZiel","Zusatz Ziel",rec.zusatzZiel);
+    const zI = mkY("zusatzIst","Zusatz Ist",rec.zusatzIst);
+    const pZ = mkY("pflegeZiel","Pflege Ziel",rec.pflegeZiel);
+    const pI = mkY("pflegeIst","Pflege Ist",rec.pflegeIst);
+    y3.appendChild(zZ.wrap); y3.appendChild(zI.wrap); y3.appendChild(pZ.wrap); y3.appendChild(pI.wrap);
+    form.appendChild(y3);
+
+    const y4 = document.createElement("div"); y4.className = "row";
+    const kZ = mkY("bkvZiel","bKV Ziel",rec.bkvZiel);
+    const kI = mkY("bkvIst","bKV Ist",rec.bkvIst);
+    const rZ = mkY("reiseZiel","Reise Ziel",rec.reiseZiel);
+    const rI = mkY("reiseIst","Reise Ist",rec.reiseIst);
+    y4.appendChild(kZ.wrap); y4.appendChild(kI.wrap); y4.appendChild(rZ.wrap); y4.appendChild(rI.wrap);
+    form.appendChild(y4);
+
+    function onYearManual(){ touch(rec); renderDashboard(); }
+    [gZ,gI,vZ,vI,bZ,bI,zZ,zI,pZ,pI,kZ,kI,rZ,rI].forEach(f=>{
+      f.el.oninput = () => { rec[f.el.id] = f.el.value; onYearManual(); };
+    });
+
+    form.appendChild(dividerEl());
+
+    // Produktion & Ziele (Jahreswerte -> Monatsübersicht /12)
+    const hP = document.createElement("div"); hP.className = "h2";
+    hP.textContent = "Produktion & Ziele (Jahreswerte → Monatsübersicht)";
+    form.appendChild(hP);
+
+    const rP = document.createElement("div"); rP.className = "row";
+    const pv = inputField({ id:"prodVoll", label:"Produktion Voll", value: rec.prodVoll || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    const zv = inputField({ id:"zielVoll", label:"Ziel Voll", value: rec.zielVoll || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    const pb = inputField({ id:"prodBeihilfe", label:"Produktion Beihilfe", value: rec.prodBeihilfe || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    const zb = inputField({ id:"zielBeihilfe", label:"Ziel Beihilfe", value: rec.zielBeihilfe || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    const pz = inputField({ id:"prodZusatz", label:"Produktion Zusatz", value: rec.prodZusatz || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    const zz = inputField({ id:"zielZusatz", label:"Ziel Zusatz", value: rec.zielZusatz || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    const pk = inputField({ id:"prodBkv", label:"Produktion bKV", value: rec.prodBkv || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    const zk = inputField({ id:"zielBkv", label:"Ziel bKV", value: rec.zielBkv || "", placeholder:"€", span:"w3", attrs:{inputmode:"decimal"} });
+    [pv,zv,pb,zb,pz,zz,pk,zk].forEach(x => rP.appendChild(x.wrap));
+    form.appendChild(rP);
+
+    function onMoney(){ touch(rec); renderDashboard(); renderYearTable(); renderRecordSelect(); }
+    pv.el.oninput=()=>{ rec.prodVoll=pv.el.value; onMoney(); };
+    zv.el.oninput=()=>{ rec.zielVoll=zv.el.value; onMoney(); };
+    pb.el.oninput=()=>{ rec.prodBeihilfe=pb.el.value; onMoney(); };
+    zb.el.oninput=()=>{ rec.zielBeihilfe=zb.el.value; onMoney(); };
+    pz.el.oninput=()=>{ rec.prodZusatz=pz.el.value; onMoney(); };
+    zz.el.oninput=()=>{ rec.zielZusatz=zz.el.value; onMoney(); };
+    pk.el.oninput=()=>{ rec.prodBkv=pk.el.value; onMoney(); };
+    zk.el.oninput=()=>{ rec.zielBkv=zk.el.value; onMoney(); };
+
+    // Hinweis: Jahresauswertung-Tabelle wird außerhalb gerendert (oben auf der Seite)
   }
 
-  function wireQuickActions(rec){
-    $("chipFavorite").onclick = () => {
-      rec.favorit = !rec.favorit;
-      touch(rec);
-      renderRecordSelect();
-      renderDashboard();
-    };
-
-    $("btnCopyAddress").onclick = () => {
-      const addr = [rec.firma, rec.strasse, `${rec.plz} ${rec.ort}`.trim()].filter(Boolean).join("\n");
-      copyToClipboard(addr);
-      setStatus("Adresse kopiert");
-      setTimeout(()=>setStatus("bereit"),700);
-    };
-    $("btnCopyPhone").onclick = () => {
-      const s = [rec.telefon ? ("Tel: " + rec.telefon) : "", rec.mobil ? ("Mobil: " + rec.mobil) : ""].filter(Boolean).join("\n");
-      copyToClipboard(s);
-      setStatus("Telefon kopiert");
-      setTimeout(()=>setStatus("bereit"),700);
-    };
-    $("btnCall").onclick = () => {
-      const num = (rec.mobil || rec.telefon || "").trim();
-      if(!num) return alert("Keine Telefonnummer vorhanden.");
-      window.location.href = `tel:${num.replace(/\s+/g,"")}`;
-    };
-    $("btnMail").onclick = () => {
-      const mail = (rec.email || "").trim();
-      if(!mail) return alert("Keine E-Mail vorhanden.");
-      window.location.href = `mailto:${mail}`;
-    };
-  }
-
-  // ===============================
-  // Actions: records, custom fields, export/import, etc.
-  // ===============================
   function newRecord(){
     const p = getActivePartner();
     const ps = getPartnerState(p.key);
@@ -1550,7 +1491,6 @@
     if(!confirm(`Feld "${f.label}" wirklich löschen?`)) return;
 
     ps.customFields.splice(n-1,1);
-    // remove values
     for(const r of ps.records){
       if(r.custom) delete r.custom[f.id];
     }
@@ -1581,6 +1521,10 @@
     const parsed = safeJSONParse(text, null);
     if(!parsed || !parsed.partners) return alert("Import fehlgeschlagen: ungültige Datei.");
     db = parsed;
+    // Migration: ensure ui.page/year
+    db.ui ||= {};
+    db.ui.page ||= "main";
+    db.ui.year ||= currentYear();
     saveDB();
     renderAll();
     alert("Import erfolgreich.");
@@ -1598,22 +1542,13 @@
     renderAll();
   }
 
-  // Quick focus buttons
-  function focusById(id){
-    const el = document.getElementById(id);
-    if(el){ el.scrollIntoView({ behavior:"smooth", block:"center" }); el.focus({preventScroll:true}); }
-  }
-
-  // ===============================
-  // Render All
-  // ===============================
   function renderYearSelect(){
     const sel = $("yearSelect");
     sel.innerHTML = "";
     const yNow = currentYear();
     const years = [];
     for(let y=yNow-3; y<=yNow+2; y++) years.push(y);
-    const prefer = db.ui.year || yNow;
+    const prefer = parseInt(db.ui.year,10) || yNow;
     for(const y of years){
       const opt = document.createElement("option");
       opt.value = y;
@@ -1624,35 +1559,51 @@
     sel.onchange = () => {
       db.ui.year = parseInt(sel.value,10) || yNow;
       saveDB();
+      $("statsPartnerChip").textContent = getActivePartner().name + " · " + db.ui.year;
       renderYearTable();
       renderDashboard();
     };
+  }
+
+  function focusAfterNav(id){
+    navTo("stats");
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if(el){ el.scrollIntoView({behavior:"smooth", block:"center"}); el.focus({preventScroll:true}); }
+    }, 50);
   }
 
   function renderAll(){
     const partner = getActivePartner();
     document.body.setAttribute("data-partner", partner.key);
 
+    $("activePartnerBadge").textContent = partner.name;
+    $("statsPartnerChip").textContent = partner.name + " · " + (db.ui.year || currentYear());
+
+    renderPages();
     renderPartnerTabs();
     renderRecordSelect();
     renderRoleCustomInfo();
-    renderYearSelect();
 
     $("q").value = db.ui.q || "";
     $("chkAllPartners").checked = !!db.ui.allPartners;
     $("chkOnlyOpen").checked = !!db.ui.onlyOpen;
-    $("chkOnlyYear").checked = !!db.ui.onlyYear;
 
+    renderYearSelect();
     renderYearTable();
     renderDashboard();
     renderHits();
-    renderForm();
+
+    renderFormMain();
+    renderFormStats();
   }
 
-  // ===============================
-  // Wire global UI
-  // ===============================
-  $("btnSaveTop").onclick = () => { saveDB(); setStatus("gespeichert"); setTimeout(()=>setStatus("bereit"),800); };
+  // --- Global UI wiring
+  $("navMain").onclick = () => navTo("main");
+  $("navStats").onclick = () => navTo("stats");
+  $("btnGoStatsTop").onclick = () => navTo("stats");
+
+  $("btnSaveTop").onclick = () => { saveDB(); setStatus("gespeichert"); setTimeout(()=>setStatus("bereit"),700); };
   $("btnPrintTop").onclick = () => window.print();
   $("btnAddCustomFieldTop").onclick = addCustomField;
   $("btnDeleteFieldTop").onclick = deleteCustomField;
@@ -1682,7 +1633,6 @@
 
   $("chkAllPartners").onchange = () => { db.ui.allPartners = $("chkAllPartners").checked; saveDB(); renderHits(); renderDashboard(); };
   $("chkOnlyOpen").onchange = () => { db.ui.onlyOpen = $("chkOnlyOpen").checked; saveDB(); renderHits(); renderDashboard(); };
-  $("chkOnlyYear").onchange = () => { db.ui.onlyYear = $("chkOnlyYear").checked; saveDB(); renderHits(); renderDashboard(); };
 
   $("btnToggleHits").onclick = () => {
     const c = $("hitsCard");
@@ -1690,31 +1640,39 @@
   };
 
   $("btnFocusFollowUpsTop").onclick = () => {
-    // scroll to first followup input if exists
-    const el = document.querySelector('[id*="_fud"]');
-    if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+    navTo("main");
+    setTimeout(() => {
+      const el = document.querySelector('[id*="_fud"]');
+      if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+    }, 50);
   };
-  $("btnFocusVollTop").onclick = () => focusById("vollIst");
-  $("btnFocusBeihilfeTop").onclick = () => focusById("beihilfeIst");
-  $("btnFocusZusatzTop").onclick = () => focusById("zusatzIst");
-  $("btnFocusBkvTop").onclick = () => focusById("bkvIst");
+
+  // Produktions-Shortcuts (auf Auswertungs-Seite fokussieren)
+  $("btnFocusVollTop").onclick = () => focusAfterNav("vollIst");
+  $("btnFocusBeihilfeTop").onclick = () => focusAfterNav("beihilfeIst");
+  $("btnFocusZusatzTop").onclick = () => focusAfterNav("zusatzIst");
+  $("btnFocusBkvTop").onclick = () => focusAfterNav("bkvIst");
 
   $("btnYearCsv").addEventListener("click", () => {
     const blob = new Blob([buildYearCsv()], { type:"text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     const partner = getActivePartner();
-    const y = parseInt($("yearSelect").value,10) || currentYear();
+    const y = parseInt(db.ui.year,10) || currentYear();
     a.download = `jahresauswertung_${partner.name.replaceAll(" ","_")}_${y}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
   });
   $("btnYearPrint").addEventListener("click", () => window.print());
 
-  // ===============================
-  // Init
-  // ===============================
+  // --- Init
   loadDB();
+
+  // Optional: Hash übernimmt Navigation
+  if(location.hash === "#stats") db.ui.page = "stats";
+  if(location.hash === "#main") db.ui.page = "main";
+
+  saveDB();
   setStatus("bereit");
   renderAll();
 })();
